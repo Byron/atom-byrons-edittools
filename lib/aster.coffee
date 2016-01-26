@@ -1,4 +1,5 @@
 
+
 # An interface to allow traversing anything that can be represented by a hierarchy.
 #
 # It deals with blocks, who have parents and children
