@@ -1,11 +1,4 @@
 # See https://atom.io/docs/latest/hacking-atom-package-word-count#menus for more details
-'context-menu':
-  'atom-text-editor': [
-    {
-      'label': 'Toggle smart-expand'
-      'command': 'smart-expand:toggle'
-    }
-  ]
 'menu': [
   {
     'label': 'Packages'
@@ -13,8 +6,12 @@
       'label': 'smart-expand'
       'submenu': [
         {
-          'label': 'Toggle'
-          'command': 'smart-expand:toggle'
+          'label': 'Expand'
+          'command': 'smart-expand:grow'
+        },
+        {
+          'label': 'Contract'
+          'command': 'smart-expand:shrink'
         }
       ]
     ]

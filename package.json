@@ -2,12 +2,9 @@
   "name": "smart-expand",
   "main": "./lib/smart-expand",
   "version": "0.0.0",
-  "description": "A short description of your package",
+  "description": "Expand and grow your selection in the least surprising manner",
   "keywords": [
   ],
-  "activationCommands": {
-    "atom-workspace": "smart-expand:toggle"
-  },
   "repository": "https://github.com/atom/smart-expand",
   "license": "MIT",
   "engines": {
