@@ -19,12 +19,12 @@ describe "BlockInterface", ->
       expect(sequence[0]).toEqual []
       expect(sequence[7]).toEqual ['b', 'c']
 
-  describe "Behaviour", ->
+  describe "BlockInterface", ->
     beforeEach ->
       @b0 = new ExampleBlock sequence, 0
       @blast = new ExampleBlock sequence, sequence.length - 1
 
-    it 'should obey to the interface description', ->
+    it 'adjecentTo()', ->
       expect(@b0.adjecentTo Direction.left).toBe null
       expect(@blast.adjecentTo Direction.right).toBe null
 
