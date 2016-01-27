@@ -3,13 +3,14 @@
   "main": "./lib/smart-expand",
   "version": "0.0.0",
   "description": "Expand and grow your selection in the least surprising manner",
-  "keywords": [
-  ],
+  "keywords": [],
   "repository": "https://github.com/atom/smart-expand",
   "license": "MIT",
   "engines": {
     "atom": ">=1.0.0 <2.0.0"
   },
-  "dependencies": {
+  "dependencies": {},
+  "devDependencies": {
+    "lodash": "^4.0.1"
   }
 }
