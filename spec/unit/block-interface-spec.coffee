@@ -3,6 +3,7 @@ ExampleBlock = require './example-block'
 
 describe "BlockInterface", ->
   v = null
+  test = it
   root =
     a: v
     b:
@@ -24,7 +25,7 @@ describe "BlockInterface", ->
       @b0 = new ExampleBlock sequence, 0
       @blast = new ExampleBlock sequence, sequence.length - 1
 
-    it 'adjecentTo()', ->
+    test 'adjecentTo()', ->
       expect(@b0.adjecentTo Direction.left).toBe null
       expect(@blast.adjecentTo Direction.right).toBe null
 
