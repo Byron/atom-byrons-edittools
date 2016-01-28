@@ -4,7 +4,7 @@
 # block where traversal order is depth first
 class ExampleBlock extends BlockInterface
   constructor: (@sequence, @index) ->
-  adjecentTo: (direction) ->
+  at: (direction) ->
     nextIndex = switch direction
       when Direction.left then @index - 1
       when Direction.right then @index + 1

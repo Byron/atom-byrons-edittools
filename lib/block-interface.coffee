@@ -14,7 +14,7 @@ class BlockInterface
   # block exists. The only reason to return null is if there is no block
   # to the left or right, such as if you are at the beginning of the document
   # (*no block to the left*), or at the end (*no block to the right*).
-  adjecentTo: (direction) -> subclass_implementation_needed()
+  at: (direction) -> subclass_implementation_needed()
 
   # Returns the depth of the Block within the tree.
   # It is relative, but has to be consistent.

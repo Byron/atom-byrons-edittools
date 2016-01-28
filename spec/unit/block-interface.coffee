@@ -13,6 +13,7 @@ describe "BlockInterface", ->
     c: v
 
   sequence = ExampleBlock.makeSequenceDF sequence
+  {left, right} = Direction
 
   beforeEach ->
     @b0 = new ExampleBlock sequence, 0
@@ -32,20 +33,20 @@ describe "BlockInterface", ->
       expect(@blast.depth()).toBe 1
 
   describe "BlockInterface", ->
-    describe 'adjecentTo()', ->
+    describe 'at()', ->
       it 'should return null if it reached the left document border', ->
-        expect(@b0.adjecentTo Direction.left).toBe null
+        expect(@b0.at left).toBe null
 
       it 'should return null if it reaches the right document border', ->
-        expect(@blast.adjecentTo Direction.right).toBe null
+        expect(@blast.at right).toBe null
 
       it 'should return the right block within the document', ->
-        bnext = @b0.adjecentTo(Direction.right)
+        bnext = @b0.at right
         expect(bnext.path()).toEqual ['a']
         expect(bnext.depth()).toBe 1
 
       it 'should return the left block within the document', ->
-        bprev = @blast.adjecentTo(Direction.left)
+        bprev = @blast.at left
         expect(bprev.path()).toEqual ['b', 'b', 'a']
         expect(bprev.depth()).toBe 3
 
