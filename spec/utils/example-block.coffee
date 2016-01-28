@@ -16,25 +16,25 @@ class ExampleBlock extends BlockInterface
   path: () -> @sequence[@index]
   depth: () -> @path().length
 
-ExampleBlock.makeSequenceDF = (structure) ->
-  sequence = []
-  keep = (item) -> sequence.push clone item
-  traverse = (item, path=[]) ->
-    keep path
-    if isObject item
-      k = keys item
-      k.sort()
-      for key in k
-        path.push key
-        traverse item[key], path
-        path.pop()
-    else if isArray item
-      for obj, index in item
-        path.push "[#{index}]"
-        traverse(obj, path)
-        path.pop()
-    return
-  traverse(structure)
-  sequence
+  @makeSequenceDF: (structure) ->
+    sequence = []
+    keep = (item) -> sequence.push clone item
+    traverse = (item, path=[]) ->
+      keep path
+      if isObject item
+        k = keys item
+        k.sort()
+        for key in k
+          path.push key
+          traverse item[key], path
+          path.pop()
+      else if isArray item
+        for obj, index in item
+          path.push "[#{index}]"
+          traverse(obj, path)
+          path.pop()
+      return
+    traverse(structure)
+    sequence
 
 module.exports = ExampleBlock
