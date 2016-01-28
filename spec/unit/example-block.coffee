@@ -11,9 +11,11 @@ class ExampleBlock extends BlockInterface
       when Direction.right then @index + 1
 
     return null if nextIndex >= @sequence.length || nextIndex < 0
+
     new ExampleBlock @sequence, nextIndex
 
   path: () -> @sequence[@index]
+  depth: () -> @path().length
 
 ExampleBlock.makeSequenceDF = (structure) ->
   sequence = []
