@@ -1,9 +1,9 @@
 {Direction, BlockInterface} = require '../../lib/block-interface'
-{ExampleBlock, sequence} = require './example-block'
+{ExampleBlock, sequence} = require '../utils/example-block'
 
 describe "BlockInterface", ->
   test = assert = it
-  
+
   describe 'ExampleBlock', ->
     it 'should flatten structures depth first, keeping all encountered paths', ->
       expect(sequence[0]).toEqual []

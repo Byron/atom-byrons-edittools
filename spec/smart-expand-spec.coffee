@@ -2,5 +2,5 @@ SmartExpand = require '../lib/smart-expand'
 
 describe "SmartExpand", ->
   describe "unit", ->
-    require './unit/block-interface-spec'
-    require './unit/block-cache-spec'
+    require './unit/block-interface'
+    require './unit/block-cache'

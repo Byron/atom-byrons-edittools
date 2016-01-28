@@ -1,5 +1,5 @@
 BlockCache = require '../../lib/block-cache'
-{ExampleBlock, sequence} = require './example-block'
+{ExampleBlock, sequence} = require '../utils/example-block'
 
 describe "BlockCache", ->
   beforeEach ->
