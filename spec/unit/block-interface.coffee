@@ -1,8 +1,18 @@
 {Direction, BlockInterface} = require '../../lib/block-interface'
-{ExampleBlock, sequence} = require '../utils/example-block'
+ExampleBlock = require '../utils/example-block'
 
 describe "BlockInterface", ->
   test = assert = it
+  v = null
+  sequence =
+    a: v
+    b:
+      a: v
+      b:
+        a: v,
+    c: v
+
+  sequence = ExampleBlock.makeSequenceDF sequence
 
   beforeEach ->
     @b0 = new ExampleBlock sequence, 0

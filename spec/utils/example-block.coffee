@@ -37,15 +37,4 @@ ExampleBlock.makeSequenceDF = (structure) ->
   traverse(structure)
   sequence
 
-v = null
-root =
-  a: v
-  b:
-    a: v
-    b:
-      a: v,
-  c: v
-
-sequence = ExampleBlock.makeSequenceDF root
-
-module.exports = {ExampleBlock, sequence}
+module.exports = ExampleBlock
