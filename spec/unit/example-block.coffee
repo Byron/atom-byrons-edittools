@@ -2,7 +2,6 @@
 {isObject, keys, isArray, clone} = require 'lodash'
 
 # block where traversal order is depth first
-module.exports =
 class ExampleBlock extends BlockInterface
   constructor: (@sequence, @index) ->
   adjecentTo: (direction) ->
@@ -37,3 +36,16 @@ ExampleBlock.makeSequenceDF = (structure) ->
     return
   traverse(structure)
   sequence
+
+v = null
+root =
+  a: v
+  b:
+    a: v
+    b:
+      a: v,
+  c: v
+
+sequence = ExampleBlock.makeSequenceDF root
+
+module.exports = {ExampleBlock, sequence}

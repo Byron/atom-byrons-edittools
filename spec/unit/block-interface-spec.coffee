@@ -1,19 +1,9 @@
-{Direction, Relation, BlockInterface, BlockCache} = require '../../lib/block-interface'
-ExampleBlock = require './example-block'
+{Direction, BlockInterface} = require '../../lib/block-interface'
+{ExampleBlock, sequence} = require './example-block'
 
 describe "BlockInterface", ->
-  v = null
   test = assert = it
-  root =
-    a: v
-    b:
-      a: v
-      b:
-        a: v,
-    c: v
-
-  sequence = ExampleBlock.makeSequenceDF root
-
+  
   describe 'ExampleBlock', ->
     it 'should flatten structures depth first, keeping all encountered paths', ->
       expect(sequence[0]).toEqual []
@@ -54,10 +44,3 @@ describe "BlockInterface", ->
 
       assert 'that direct parents decrement depth by one', ->
         expect(block(5).depth()).toBe block(4).depth() + 1
-
-  describe "BlockCache", ->
-    beforeEach ->
-      @c = new BlockCache(new ExampleBlock sequence, 0)
-
-    it 'should treat the first block as child of its (virtual) root', ->
-      expect(@c.$root.$$children.length).toBe 1
