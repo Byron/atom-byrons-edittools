@@ -1,6 +1,6 @@
 BlockCache = require '../../lib/block-cache'
 ExampleBlock = require '../utils/example-block'
-{Direction} = require '../../lib/block-interface'
+{Direction, oppositeOf} = require '../../lib/block-interface'
 
 describe "BlockCache", ->
   v = null
@@ -38,28 +38,39 @@ describe "BlockCache", ->
             when right then blockCache(sequence.length - 1)
             else throw new Error("unknown direction: #{direction}")
 
+          @c1 = blockCache 1
+
         describe "advance() to #{direction}", ->
           it "advance and returns the cursor", ->
-            c = blockCache 1
-            last_cursor = c.cursor
-            expect(c.advance direction).toBe c.cursor
-            expect(c.cursor).not.toBe last_cursor
+            lastCursor = @c1.cursor
+            expect(@c1.advance direction).toBe @c1.cursor
+            expect(@c1.cursor).not.toBe lastCursor
 
           it "returns null if it reaches end of document and doesn't advance cursor", ->
-            last_cursor = @cd.cursor
+            lastCursor = @cd.cursor
             expect(@cd.advance direction).toBe null
-            expect(@cd.cursor).toBe last_cursor
+            expect(@cd.cursor).toBe lastCursor
 
         describe "peek() to #{direction}", ->
-          it "should not advance cursor when peeking", ->
-            c = blockCache 1
-            last_cursor = c.cursor
-            expect(c.peek direction).toBeTruthy()
-            expect(c.cursor).toBe last_cursor
+          it "must not change cursor when peeking", ->
+            lastCursor = @c1.cursor
+            expect(@c1.peek direction).toBeTruthy()
+            expect(@c1.cursor).toBe lastCursor
 
           it "should return the same result if peeking multiple times", ->
+            expect(@c1.peek direction).toBe @c1.peek direction
 
           it "returns null at the end of a document", ->
+            expect(@cd.peek direction).toBe null
 
           it "peek results are consistent in the face of advance", ->
+            lastCursor = @cd.cursor
+            expect(peeked = @cd.peek oppositeOf direction).not.toEqual @cd.peek direction
+            expect(nextCursor = @cd.advance oppositeOf direction).toBe peeked
+            expect(@cd.peek direction).toEqual lastCursor
+
+            expect(@cd.advance direction).toEqual lastCursor
+            expect(@cd.peek oppositeOf direction).toEqual nextCursor
+
+            # expect(@cd.peek direction)
     )(direction)

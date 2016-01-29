@@ -37,8 +37,7 @@ class BlockCache
 
   # Peek towards the given direction, without advancing it
   peek: (direction) ->
-    next = @peekAt[direction]
-    return next if next
+    return next if next = @peekAt[direction]
     @peekAt[direction] = @cursor.at direction
 
 
