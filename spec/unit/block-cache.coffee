@@ -33,7 +33,6 @@ describe "BlockCache", ->
     ((direction) ->
       describe "cursor", ->
         beforeEach ->
-          console.log 'before', direction
           @cd = switch direction
             when left then blockCache(0)
             when right then blockCache(sequence.length - 1)
@@ -41,14 +40,12 @@ describe "BlockCache", ->
 
         describe "advance() to #{direction}", ->
           it "advance and returns the cursor", ->
-            console.log 'advance 1'
             c = blockCache 1
             last_cursor = c.cursor
             expect(c.advance direction).toBe c.cursor
             expect(c.cursor).not.toBe last_cursor
 
           it "returns null if it reaches end of document and doesn't advance cursor", ->
-            console.log 'advance 2'
             last_cursor = @cd.cursor
             expect(@cd.advance direction).toBe null
             expect(@cd.cursor).toBe last_cursor
@@ -62,5 +59,7 @@ describe "BlockCache", ->
 
           it "should return the same result if peeking multiple times", ->
 
-          it "does not overwrite "
+          it "returns null at the end of a document", ->
+
+          it "peek results are consistent in the face of advance", ->
     )(direction)
