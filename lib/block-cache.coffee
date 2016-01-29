@@ -1,4 +1,4 @@
-{Direction} = require './block-interface'
+{Direction, oppositeOf} = require './block-interface'
 
 # Uses an implementation of a BlockInterface to keep track of the hierarchy
 # traversed so far.
@@ -21,16 +21,25 @@
 class BlockCache
   constructor: (firstBlock) ->
     @cursor = firstBlock
+    @peekAt = {}
     @$root = $$parent: null, $$children: [firstBlock]
 
   # Advance the cache's cursor to the given block direction and returns changed cursor
   # or null if the document ended. In the latter case, the cursor did not change
   advance: (direction) ->
-    next = @cursor.at direction
-    return next if next == null
-    @cursor = next
+    finalized = (next) =>
+      @peekAt = {}
+      return @cursor = next
+
+    return finalized next if next = @peekAt[direction]
+    return finalized next if next = @cursor.at direction
+    null
 
   # Peek towards the given direction, without advancing it
   peek: (direction) ->
+    next = @peekAt[direction]
+    return next if next
+    @peekAt[direction] = @cursor.at direction
+
 
 module.exports = BlockCache

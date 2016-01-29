@@ -26,9 +26,14 @@ class BlockInterface
   # of knowing the actual parent of a block.
   depth: () -> subclass_implementation_needed()
 
-
 Direction =
   right: 'right'
   left: 'left'
 
-module.exports = {Direction, BlockInterface}
+oppositeOf = (direction) ->
+  switch direction
+    when Direction.left then Direction.right
+    when Direction.right then Direction.left
+    else throw new Error("Unknown direction: #{direction}")
+
+module.exports = {Direction, BlockInterface, oppositeOf}

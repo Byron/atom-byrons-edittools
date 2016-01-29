@@ -1,4 +1,4 @@
-{Direction, BlockInterface} = require '../../lib/block-interface'
+{Direction, BlockInterface, oppositeOf} = require '../../lib/block-interface'
 ExampleBlock = require '../utils/example-block'
 
 describe "BlockInterface", ->
@@ -61,3 +61,10 @@ describe "BlockInterface", ->
 
       assert 'that direct parents decrement depth by one', ->
         expect(block(5).depth()).toBe block(4).depth() + 1
+
+describe "oppositeOf()", ->
+  for key, direction of Direction
+    ((direction) ->
+      it "should return the oppisite direction", ->
+        expect(oppositeOf direction).not.toEqual direction
+    )(direction)
