@@ -19,26 +19,35 @@
 # The cache behaves much like a lexer, such that it has a cursor pointing to a
 # current block, and allows to peek in a direction without adjusting the cursor.
 class BlockCache
+  withCacheFields = (block) ->
+    block.$$parent = null
+    block.$$firstChild = null
+    block.$$nextSibling = block.$$prevSibling = null
+    block
+
+  $cached: (block) ->
+    return block unless block?
+    withCacheFields block
+    @cursor.$$nextSibling = block
+    block.$$prevSibling = @cursor
+    block
+
   constructor: (firstBlock) ->
-    @cursor = firstBlock
+    @cursor = withCacheFields firstBlock
     @peekAt = {}
-    @$root = $$parent: null, $$children: [firstBlock]
 
   # Advance the cache's cursor to the given block direction and returns changed cursor
   # or null if the document ended. In the latter case, the cursor did not change
   advance: (direction) ->
-    finalized = (next) =>
+    if next = @peek direction
       @peekAt = {}
       return @cursor = next
-
-    return finalized next if next = @peekAt[direction]
-    return finalized next if next = @cursor.at direction
     null
 
   # Peek towards the given direction, without advancing it
   peek: (direction) ->
     return next if next = @peekAt[direction]
-    @peekAt[direction] = @cursor.at direction
+    @peekAt[direction] = @$cached @cursor.at direction
 
 
 module.exports = BlockCache

@@ -8,6 +8,7 @@ class ExampleBlock extends BlockInterface
     nextIndex = switch direction
       when Direction.left then @index - 1
       when Direction.right then @index + 1
+      else throw new Error("invalid direction: #{direction}")
 
     return null if nextIndex >= @sequence.length || nextIndex < 0
 
