@@ -22,32 +22,37 @@ class BlockCache
   withCacheFields = (block) ->
     block.$$parent = null
     block.$$firstChild = null
-    block.$$nextSibling = block.$$prevSibling = null
+    block.$$siblingAt = {}
+    block.$$nextInSequenceAt = {}
     block
 
-  $cached: (block) ->
+  $setupCachedBlockAt: (direction) ->
+    block = @cursor.at direction
     return block unless block?
     withCacheFields block
-    @cursor.$$nextSibling = block
-    block.$$prevSibling = @cursor
+
+    @cursor.$$nextInSequenceAt[direction] = block
+    block.$$nextInSequenceAt[oppositeOf direction] = @cursor
+
+    @cursor.$$siblingAt[direction] = block
+    block.$$siblingAt[oppositeOf direction] = @cursor
+
     block
 
   constructor: (firstBlock) ->
     @cursor = withCacheFields firstBlock
-    @peekAt = {}
 
   # Advance the cache's cursor to the given block direction and returns changed cursor
   # or null if the document ended. In the latter case, the cursor did not change
   advance: (direction) ->
     if next = @peek direction
-      @peekAt = {}
       return @cursor = next
     null
 
   # Peek towards the given direction, without advancing it
   peek: (direction) ->
-    return next if next = @peekAt[direction]
-    @peekAt[direction] = @$cached @cursor.at direction
+    return next if next = @cursor.$$nextInSequenceAt[direction]
+    @$setupCachedBlockAt direction
 
 
 module.exports = BlockCache

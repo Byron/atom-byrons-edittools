@@ -37,6 +37,13 @@ describe "BlockCache", ->
 
           @c1 = blockCache 1
 
+        it "should initialize the cache on the cursor", ->
+          b = @c1.cursor
+          expect(b.$$parent).toBe null
+          expect(b.$$firstChild).toBe null
+          expect(b.$$siblingAt).toEqual {}
+          expect(b.$$nextInSequenceAt).toEqual {}
+
         describe "advance() to #{direction}", ->
           it "advance and returns the cursor", ->
             lastCursor = @c1.cursor
@@ -47,6 +54,12 @@ describe "BlockCache", ->
             lastCursor = @cd.cursor
             expect(@cd.advance direction).toBe null
             expect(@cd.cursor).toBe lastCursor
+
+          it "returns siblings from cache", ->
+            c = blockCache 2
+            lc = c.cursor
+            c.advance direction
+            expect(c.advance oppositeOf direction).toBe lc
 
         describe "peek() to #{direction}", ->
           it "must not change cursor when peeking", ->
@@ -60,8 +73,7 @@ describe "BlockCache", ->
           it "returns null at the end of a document", ->
             expect(@cd.peek direction).toBe null
 
-          # TODO: put back in once it works
-          xit "peek results are consistent in the face of advance", ->
+          it "peek results are consistent in the face of advance", ->
             lastCursor = @cd.cursor
             expect(peeked = @cd.peek oppositeOf direction).not.toEqual @cd.peek direction
             expect(nextCursor = @cd.advance oppositeOf direction).toBe peeked
@@ -72,22 +84,16 @@ describe "BlockCache", ->
     )(direction)
 
   describe "caching", ->
-    it "should initialize the cache on the cursor", ->
-      b = blockCache(1).cursor
-      expect(b.$$parent).toBe null
-      expect(b.$$firstChild).toBe null
-      expect(b.$$nextSibling).toBe null
-      expect(b.$$prevSibling).toBe null
+    beforeEach ->
+      @c1 = blockCache(1)
 
     for fnName in ['peek', 'advance']
       ((fnName) ->
         describe "#{fnName}()", ->
-
           it "#{fnName}(): it should setup siblings", ->
-            c =  blockCache(1)
-            lc = c.cursor
-            b = c[fnName](right)
-            expect(lc.$$nextSibling).toBe b
-            expect(b.$$prevSibling).toBe lc
-            expect(b.$$nextSibling).toBe null
+            lc = @c1.cursor
+            b = @c1[fnName](right)
+            expect(lc.$$siblingAt[right]).toBe b
+            expect(b.$$siblingAt[left]).toBe lc
+            expect(b.$$siblingAt[right]).toBeFalsy()
       )(fnName)
