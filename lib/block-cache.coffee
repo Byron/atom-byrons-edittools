@@ -1,5 +1,17 @@
 {Direction, oppositeOf} = require './block-interface'
 
+VerticalDirection =
+  above: 'above'
+  below: 'below'
+
+{above, below} = VerticalDirection
+
+verticallyOppositeOf = (direction) ->
+  switch direction
+    when above then below
+    when below then above
+    else throw new Error("invalid vertical direction: #{direction}")
+
 # Uses an implementation of a BlockInterface to keep track of the hierarchy
 # traversed so far.
 #
@@ -20,8 +32,7 @@
 # current block, and allows to peek in a direction without adjusting the cursor.
 class BlockCache
   withCacheFields = (block) ->
-    block.$$parent = null
-    block.$$firstChild = null
+    block.$$hierarchicallyAt = {}
     block.$$siblingAt = {}
     block.$$nextInSequenceAt = {}
     block
@@ -34,9 +45,16 @@ class BlockCache
     @cursor.$$nextInSequenceAt[direction] = block
     block.$$nextInSequenceAt[oppositeOf direction] = @cursor
 
-    @cursor.$$siblingAt[direction] = block
-    block.$$siblingAt[oppositeOf direction] = @cursor
-
+    switch verticalOffset = block.depth() - @cursor.depth()
+      when 0
+        @cursor.$$siblingAt[direction] = block
+        block.$$siblingAt[oppositeOf direction] = @cursor
+      when -1, 1
+        position = if verticalOffset == 1 then below else above
+        @cursor.$$hierarchicallyAt[position] = block
+        block.$$hierarchicallyAt[verticallyOppositeOf position] = @cursor
+      else
+        throw new Error("can't yet handle offsets larger 1")
     block
 
   constructor: (firstBlock) ->
@@ -54,5 +72,4 @@ class BlockCache
     return next if next = @cursor.$$nextInSequenceAt[direction]
     @$setupCachedBlockAt direction
 
-
-module.exports = BlockCache
+module.exports = {BlockCache, VerticalDirection, verticallyOppositeOf}
