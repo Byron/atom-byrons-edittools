@@ -44,8 +44,7 @@ describe "BlockCache", ->
 
         it "should initialize the cache on the cursor", ->
           b = @c1.cursor
-          expect(b.$$siblingAt).toEqual {}
-          expect(b.$$hierarchicallyAt).toEqual {}
+          expect(b.$$locatedAt).toEqual {}
           expect(b.$$nextInSequenceAt).toEqual {}
 
         describe "advance() to #{direction}", ->
@@ -99,9 +98,9 @@ describe "BlockCache", ->
               b = c[fnName](direction)
               expect(lc.depth()).toBe b.depth()
 
-              expect(lc.$$siblingAt[direction]).toBe b
-              expect(b.$$siblingAt[oppositeOf direction]).toBe lc
-              expect(b.$$siblingAt[direction]).toBeFalsy()
+              expect(lc.$$locatedAt[direction]).toBe b
+              expect(b.$$locatedAt[oppositeOf direction]).toBe lc
+              expect(b.$$locatedAt[direction]).toBeFalsy()
 
             it "should setup direct parent/child relationships", ->
               c = blockCache 5
@@ -113,7 +112,7 @@ describe "BlockCache", ->
                 when right then below
                 when left then above
                 else throw new Error("invalid direction: #{direction}")
-              expect(lc.$$hierarchicallyAt[position]).toBe b
-              expect(b.$$hierarchicallyAt[verticallyOppositeOf position]).toBe lc
-              expect(b.$$hierarchicallyAt[position]).toBeFalsy()
+              expect(lc.$$locatedAt[position]).toBe b
+              expect(b.$$locatedAt[verticallyOppositeOf position]).toBe lc
+              expect(b.$$locatedAt[position]).toBeFalsy()
         )(fnName, direction)

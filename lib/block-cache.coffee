@@ -32,8 +32,7 @@ verticallyOppositeOf = (direction) ->
 # current block, and allows to peek in a direction without adjusting the cursor.
 class BlockCache
   withCacheFields = (block) ->
-    block.$$hierarchicallyAt = {}
-    block.$$siblingAt = {}
+    block.$$locatedAt = {}
     block.$$nextInSequenceAt = {}
     block
 
@@ -45,16 +44,18 @@ class BlockCache
     @cursor.$$nextInSequenceAt[direction] = block
     block.$$nextInSequenceAt[oppositeOf direction] = @cursor
 
+    [position, oppositePosition] =
     switch verticalOffset = block.depth() - @cursor.depth()
-      when 0
-        @cursor.$$siblingAt[direction] = block
-        block.$$siblingAt[oppositeOf direction] = @cursor
+      when 0 then [direction, oppositeOf direction]
       when -1, 1
         position = if verticalOffset == 1 then below else above
-        @cursor.$$hierarchicallyAt[position] = block
-        block.$$hierarchicallyAt[verticallyOppositeOf position] = @cursor
+        [position, verticallyOppositeOf position]
       else
         throw new Error("can't yet handle offsets larger 1")
+
+    @cursor.$$locatedAt[position] = block
+    block.$$locatedAt[oppositePosition] = @cursor
+
     block
 
   constructor: (firstBlock) ->
