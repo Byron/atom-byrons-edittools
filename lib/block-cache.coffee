@@ -6,17 +6,14 @@ Relationship =
 
 {parent, child} = Relationship
 
-verticallyOppositeOf = (direction) ->
-  switch direction
-    when parent then child
-    when child then parent
-    else throw new Error("invalid vertical direction: #{direction}")
-
 oppositeOf =
   parent: child
   child: parent
   next: TraversalDirection.previous
   previous: TraversalDirection.next
+
+publicOppositeOf = (directionOrRelation) ->
+  oppositeOf[directionOrRelation] or ((d) -> throw new Error("invalid direction or relation: #{d}"))(directionOrRelation)
 
 # Uses an implementation of a BlockInterface to keep track of the hierarchy
 # traversed so far.
@@ -119,4 +116,5 @@ class BlockCache
   peek: (direction) ->
     peekFrom @cursor, direction
 
-module.exports = {BlockCache, Relationship, verticallyOppositeOf}
+module.exports = {BlockCache, Relationship}
+module.exports.oppositeOf = publicOppositeOf

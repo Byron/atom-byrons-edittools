@@ -1,6 +1,6 @@
-{BlockCache, Relationship, verticallyOppositeOf} = require '../../lib/block-cache'
+{BlockCache, Relationship, oppositeOf} = require '../../lib/block-cache'
 ExampleBlock = require '../utils/example-block'
-{TraversalDirection, oppositeOf} = require '../../lib/block-interface'
+{TraversalDirection} = require '../../lib/block-interface'
 _ = require 'lodash'
 
 describe "BlockCache", ->
@@ -37,9 +37,11 @@ describe "BlockCache", ->
     throw new Error("unexpected sequence - please adjust expectation and/or sequence. See log for info.")
 
 
-  it "should properly implement verticallyOppositeOf()", ->
-    expect(verticallyOppositeOf parent).toBe child
-    expect(verticallyOppositeOf child).toBe parent
+  it "should properly implement oppositeOf()", ->
+    expect(oppositeOf parent).toBe child
+    expect(oppositeOf child).toBe parent
+    expect(oppositeOf next).toBe previous
+    expect(oppositeOf previous).toBe next
 
   for key, direction of TraversalDirection
     ((direction) ->
@@ -138,7 +140,7 @@ describe "BlockCache", ->
                 when previous then parent
                 else throw new Error("invalid direction: #{direction}")
               expect(lc.$$locatedAt[position]).toBe b
-              expect(b.$$locatedAt[verticallyOppositeOf position]).toBe lc
+              expect(b.$$locatedAt[oppositeOf position]).toBe lc
               expect(b.$$locatedAt[position]).toBeFalsy()
 
         )(fnName, direction)
