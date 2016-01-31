@@ -59,7 +59,7 @@ describe "BlockCache", ->
         it "should initialize the cache on the cursor", ->
           b = @c1.cursor
           expect(b.$$cached).toEqual {}
-          expect(b.$$nextInSequenceAt).toEqual {}
+          expect(b.$$cached).toEqual {}
 
         describe "advance() to #{direction}", ->
           it "advance and returns the cursor", ->
@@ -152,7 +152,7 @@ describe "BlockCache", ->
             c = blockCacheAt 'function', '_2arguments', '2', 'usize'
             lc = c.cursor
 
-            expect(lc.$$nextInSequenceAt[previous]).toBeUndefined()
+            expect(lc.$$cached[previous]).toBeUndefined()
 
             b = c[fnName](next)
 
@@ -162,9 +162,9 @@ describe "BlockCache", ->
             expect(b.$$cached[nextSibling]).toBeUndefined()
             expect(b.$$cached[previousSibling].path()).toEqual ['function', '_2arguments']
 
-            expect(lc.$$nextInSequenceAt[next]).toBe b
-            expect(lc.$$nextInSequenceAt[previous]).not.toBeUndefined()
-            expect(b.$$nextInSequenceAt[previous]).toBe lc
+            expect(lc.$$cached[next]).toBe b
+            expect(lc.$$cached[previous]).not.toBeUndefined()
+            expect(b.$$cached[previous]).toBe lc
 
             p = b.$$cached[parent]
             expect(p.depth()).toBe b.depth() - 1

@@ -51,12 +51,11 @@ class BlockCache
     block
 
   peekFrom = (fromBlock, direction) ->
-    return next if next = fromBlock.$$nextInSequenceAt[direction]
+    return next if next = fromBlock.$$cached[direction]
     setupNextCachedBlockAt fromBlock, direction
 
   withCacheFields = (block) ->
     block.$$cached = {}
-    block.$$nextInSequenceAt = {}
     block
 
   setupNextCachedBlockAt = (fromBlock, direction) ->
@@ -64,29 +63,27 @@ class BlockCache
     return block unless block?
     withCacheFields block
 
-    fromBlock.$$nextInSequenceAt[direction] = block
-    block.$$nextInSequenceAt[oppositeOf[direction]] = fromBlock
+    fromBlock.$$cached[direction] = block
+    block.$$cached[oppositeOf[direction]] = fromBlock
 
     siblingTraversalDirection = oppositeOf[direction]
     sibling = null
     origin = fromBlock
+    relation = null
     verticalOffset = block.depth() - fromBlock.depth()
     switch
       when verticalOffset == 0
-        position = direction
+        relation = direction
       when Math.abs(verticalOffset) == 1
-        position = if verticalOffset > 0 then child else parent
+        relation = if verticalOffset > 0 then child else parent
       when verticalOffset < -1
-        position = child
+        relation = child
 
         siblingDepth = block.depth()
         targetDepth = siblingDepth - 1
         inOppositeDirection = (b) -> peekFrom b, siblingTraversalDirection
         andFindViableParentKeepingSibling = (b) ->
           depth = b.depth()
-          # TODO: figure out if algorithms should be required to step sizes of 1
-          # Maybe a configurable feature. Also: is it needed ?
-          # return stopWalk unless Math.abs(depth - siblingDepth) < 2
           sibling = b if !sibling && depth == siblingDepth
           depth == targetDepth
 
@@ -94,12 +91,12 @@ class BlockCache
       else
         throw new Error "can't yet handle offset: #{verticalOffset}"
 
-    unless origin?
+    unless origin? and relation?
       throw new Error "did not find viable origin block - traversed AST is inconsistent"
 
     if verticalOffset != 0 and not sibling?
       siblingDepth = block.depth()
-      cachedBlocksInOppositeDirection = (b) -> b.$$nextInSequenceAt[siblingTraversalDirection]
+      cachedBlocksInOppositeDirection = (b) -> b.$$cached[siblingTraversalDirection]
       andTakeFirstSibling = (b) -> b.depth() == siblingDepth
       sibling = walk block, cachedBlocksInOppositeDirection, andTakeFirstSibling
 
@@ -107,8 +104,8 @@ class BlockCache
       block.$$cached[directionToRelation[siblingTraversalDirection]] = sibling
       sibling.$$cached[directionToRelation[direction]] = block
 
-    block.$$cached[oppositeOf[position]] = origin
-    origin.$$cached[position] = block
+    block.$$cached[oppositeOf[relation]] = origin
+    origin.$$cached[relation] = block
 
   $setupCachedBlockAt: (direction) ->
     setupNextCachedBlockAt @cursor, direction
