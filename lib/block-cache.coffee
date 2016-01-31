@@ -37,29 +37,42 @@ oppositeOf =
 # The cache behaves much like a lexer, such that it has a cursor pointing to a
 # current block, and allows to peek in a direction without adjusting the cursor.
 class BlockCache
+  walk = (block, next, visitor) ->
+    stop = visitor block while not stop && block = next(block)
+    block
+
+  peekFrom = (fromBlock, direction) ->
+    return next if next = fromBlock.$$nextInSequenceAt[direction]
+    setupNextCachedBlockAt fromBlock, direction
+
   withCacheFields = (block) ->
     block.$$locatedAt = {}
     block.$$nextInSequenceAt = {}
     block
 
-  $setupCachedBlockAt: (direction) ->
-    block = @cursor.at direction
+  setupNextCachedBlockAt = (fromBlock, direction) ->
+    block = fromBlock.at direction
     return block unless block?
     withCacheFields block
 
-    @cursor.$$nextInSequenceAt[direction] = block
-    block.$$nextInSequenceAt[oppositeOf[direction]] = @cursor
+    fromBlock.$$nextInSequenceAt[direction] = block
+    block.$$nextInSequenceAt[oppositeOf[direction]] = fromBlock
 
-    position =
-    switch verticalOffset = block.depth() - @cursor.depth()
-      when 0 then direction
+    origin = fromBlock
+    verticalOffset = block.depth() - fromBlock.depth()
+    position = direction
+    switch
       when -1, 1
-        if verticalOffset == 1 then below else above
+        direction = if verticalOffset > 0 then below else above
       else
-        throw new Error("can't yet handle offsets larger 1")
+        throw new Error "can't yet handle offset: #{verticalOffset}"
 
-    block.$$locatedAt[oppositeOf[position]] = @cursor
-    @cursor.$$locatedAt[position] = block
+    throw new Error "did not find viable origin block - traversed AST is inconsistent" unless origin?
+    block.$$locatedAt[oppositeOf[position]] = origin
+    origin.$$locatedAt[position] = block
+
+  $setupCachedBlockAt: (direction) ->
+    setupNextCachedBlockAt @cursor, direction
 
   constructor: (firstBlock) ->
     @cursor = withCacheFields firstBlock
@@ -73,7 +86,6 @@ class BlockCache
 
   # Peek towards the given direction, without advancing it
   peek: (direction) ->
-    return next if next = @cursor.$$nextInSequenceAt[direction]
-    @$setupCachedBlockAt direction
+    peekFrom @cursor, direction
 
 module.exports = {BlockCache, VerticalDirection, verticallyOppositeOf}
