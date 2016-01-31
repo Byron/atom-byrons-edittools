@@ -59,11 +59,18 @@ class BlockCache
     block.$$nextInSequenceAt[oppositeOf[direction]] = fromBlock
 
     origin = fromBlock
+
     verticalOffset = block.depth() - fromBlock.depth()
-    position = direction
     switch
-      when -1, 1
-        direction = if verticalOffset > 0 then below else above
+      when verticalOffset == 0
+        position = direction
+      when Math.abs(verticalOffset) == 1
+        position = if verticalOffset > 0 then below else above
+      when verticalOffset < -1
+        inOppositeDirection = (b) -> peekFrom b, oppositeOf[direction]
+        andFindViableParent = (b) -> b.depth() == block.depth() - 1
+        origin = walk fromBlock, inOppositeDirection, andFindViableParent
+        position = below
       else
         throw new Error "can't yet handle offset: #{verticalOffset}"
 

@@ -28,7 +28,7 @@ describe "BlockCache", ->
   block = (index) -> new ExampleBlock sequence, index
   blockCache = (index) -> new BlockCache block index
 
-  if (have = (b[b.length-1] for b in sequence when b.length > 0).join('|')) != (want = "function|_0fn|_1name|_2arguments|1|&y|mut x|2|u32|usize|_return|u8|body|42")
+  if (want = "function|_0fn|_1name|_2arguments|1|&y|mut x|2|u32|usize|_return|u8|body|42") != (have = (b[b.length-1] for b in sequence when b.length > 0).join('|'))
     console.log "HAVE - WANT:\n#{have}\n#{want}"
     throw new Error("unexpected sequence - please adjust expectation and/or sequence. See log for info.")
 
@@ -121,4 +121,28 @@ describe "BlockCache", ->
               expect(lc.$$locatedAt[position]).toBe b
               expect(b.$$locatedAt[verticallyOppositeOf position]).toBe lc
               expect(b.$$locatedAt[position]).toBeFalsy()
+
         )(fnName, direction)
+      ((fnName) ->
+        describe "#{fnName}()", ->
+          it "should setup indirect parent relationships", ->
+            c = blockCache 10
+            lc = c.cursor
+
+            expect(lc.$$nextInSequenceAt[left]).toBeUndefined()
+
+            b = c[fnName](right)
+
+            expect(lc.depth() - b.depth()).toBe 2
+            expect(b.path()).toEqual ['function', '_return']
+
+            expect(lc.$$nextInSequenceAt[right]).toBe b
+            expect(lc.$$nextInSequenceAt[left]).not.toBeUndefined()
+            expect(b.$$nextInSequenceAt[left]).toBe lc
+
+            parent = b.$$locatedAt[above]
+            expect(parent.depth()).toBe b.depth() - 1
+            expect(parent.$$locatedAt[below]).toBe b
+
+          it "should setup indirect child relationships", ->
+      )(fnName)
