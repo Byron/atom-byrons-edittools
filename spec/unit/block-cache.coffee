@@ -1,4 +1,4 @@
-{BlockCache, VerticalDirection, verticallyOppositeOf} = require '../../lib/block-cache'
+{BlockCache, Relationship, verticallyOppositeOf} = require '../../lib/block-cache'
 ExampleBlock = require '../utils/example-block'
 {TraversalDirection, oppositeOf} = require '../../lib/block-interface'
 _ = require 'lodash'
@@ -23,7 +23,7 @@ describe "BlockCache", ->
   sequence = ExampleBlock.makeSequenceDF sequence
 
   {previous, next} = TraversalDirection
-  {above, below} = VerticalDirection
+  {parent, child} = Relationship
 
   blockCache = (index) -> new BlockCache(new ExampleBlock(sequence, index))
   blockCacheAt = (first) ->
@@ -38,8 +38,8 @@ describe "BlockCache", ->
 
 
   it "should properly implement verticallyOppositeOf()", ->
-    expect(verticallyOppositeOf above).toBe below
-    expect(verticallyOppositeOf below).toBe above
+    expect(verticallyOppositeOf parent).toBe child
+    expect(verticallyOppositeOf child).toBe parent
 
   for key, direction of TraversalDirection
     ((direction) ->
@@ -134,8 +134,8 @@ describe "BlockCache", ->
               expect(Math.abs(lc.depth() - b.depth())).toBe 1
 
               position = switch direction
-                when next then below
-                when previous then above
+                when next then child
+                when previous then parent
                 else throw new Error("invalid direction: #{direction}")
               expect(lc.$$locatedAt[position]).toBe b
               expect(b.$$locatedAt[verticallyOppositeOf position]).toBe lc
@@ -162,9 +162,9 @@ describe "BlockCache", ->
             expect(lc.$$nextInSequenceAt[previous]).not.toBeUndefined()
             expect(b.$$nextInSequenceAt[previous]).toBe lc
 
-            parent = b.$$locatedAt[above]
-            expect(parent.depth()).toBe b.depth() - 1
-            expect(parent.$$locatedAt[below]).toBe b
+            p = b.$$locatedAt[parent]
+            expect(p.depth()).toBe b.depth() - 1
+            expect(p.$$locatedAt[child]).toBe b
 
           it "should setup indirect child relationships", ->
       )(fnName)

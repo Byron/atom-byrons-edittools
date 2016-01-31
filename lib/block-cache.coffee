@@ -1,20 +1,20 @@
 {TraversalDirection} = require './block-interface'
 
-VerticalDirection =
-  above: 'above'
-  below: 'below'
+Relationship =
+  parent: 'parent'
+  child: 'child'
 
-{above, below} = VerticalDirection
+{parent, child} = Relationship
 
 verticallyOppositeOf = (direction) ->
   switch direction
-    when above then below
-    when below then above
+    when parent then child
+    when child then parent
     else throw new Error("invalid vertical direction: #{direction}")
 
 oppositeOf =
-  above: below
-  below: above
+  parent: child
+  child: parent
   next: TraversalDirection.previous
   previous: TraversalDirection.next
 
@@ -67,9 +67,9 @@ class BlockCache
       when verticalOffset == 0
         position = direction
       when Math.abs(verticalOffset) == 1
-        position = if verticalOffset > 0 then below else above
+        position = if verticalOffset > 0 then child else parent
       when verticalOffset < -1
-        position = below
+        position = child
 
         siblingDepth = block.depth()
         targetDepth = siblingDepth - 1
@@ -119,4 +119,4 @@ class BlockCache
   peek: (direction) ->
     peekFrom @cursor, direction
 
-module.exports = {BlockCache, VerticalDirection, verticallyOppositeOf}
+module.exports = {BlockCache, Relationship, verticallyOppositeOf}
