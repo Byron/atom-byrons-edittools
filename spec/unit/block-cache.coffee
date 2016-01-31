@@ -11,7 +11,6 @@ describe "BlockCache", ->
       _1name: v
       _2arguments:
         1:
-          '&y': v
           'mut x': v
         2:
           u32: v
@@ -33,7 +32,7 @@ describe "BlockCache", ->
     throw Error "invalid block path: #{(a for a in args).join('.')}" if index < 0
     blockCache index
 
-  if (want = "function|_0fn|_1name|_2arguments|1|&y|mut x|2|u32|usize|_return|u8|body|42") != (have = (b[b.length-1] for b in sequence when b.length > 0).join('|'))
+  if (want = "function|_0fn|_1name|_2arguments|1|mut x|2|u32|usize|_return|u8|body|42") != (have = (b[b.length-1] for b in sequence when b.length > 0).join('|'))
     console.log "HAVE - WANT:\n#{have}\n#{want}"
     throw new Error("unexpected sequence - please adjust expectation and/or sequence. See log for info.")
 
@@ -103,7 +102,7 @@ describe "BlockCache", ->
       for direction of Direction
         ((fnName, direction) ->
           describe "#{fnName}() to #{direction}", ->
-            it "should setup siblings", ->
+            it "should setup direct siblings", ->
               c = blockCacheAt 'function', '_1name'
               lc = c.cursor
               b = c[fnName](direction)
@@ -112,6 +111,21 @@ describe "BlockCache", ->
               expect(lc.$$locatedAt[direction]).toBe b
               expect(b.$$locatedAt[oppositeOf direction]).toBe lc
               expect(b.$$locatedAt[direction]).toBeFalsy()
+
+            it "should setup siblings when they become apparent", ->
+              c = blockCacheAt 'function', '_2arguments', '1', 'mut x'
+              lc = c.cursor
+              b = c[fnName](direction)
+
+              expect(b.depth()).toBe lc.depth() - 1
+              expect(b.$$locatedAt[oppositeOf direction]).toBeUndefined()
+
+              c.cursor = lc
+              nb = c[fnName](oppositeOf direction)
+
+              expect(nb.depth()).toBe lc.depth() - 1
+              expect(nb.$$locatedAt[direction]).toBe b
+              expect(b.$$locatedAt[oppositeOf direction]).toBe nb
 
             it "should setup direct parent/child relationships", ->
               c = blockCacheAt 'function', '_2arguments', '1'

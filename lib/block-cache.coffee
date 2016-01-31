@@ -59,8 +59,9 @@ class BlockCache
     fromBlock.$$nextInSequenceAt[direction] = block
     block.$$nextInSequenceAt[oppositeOf[direction]] = fromBlock
 
+    siblingDirection = oppositeOf[direction]
+    sibling = null
     origin = fromBlock
-
     verticalOffset = block.depth() - fromBlock.depth()
     switch
       when verticalOffset == 0
@@ -68,10 +69,11 @@ class BlockCache
       when Math.abs(verticalOffset) == 1
         position = if verticalOffset > 0 then below else above
       when verticalOffset < -1
+        position = below
+
         siblingDepth = block.depth()
         targetDepth = siblingDepth - 1
-        sibling = null
-        inOppositeDirection = (b) -> peekFrom b, oppositeOf[direction]
+        inOppositeDirection = (b) -> peekFrom b, siblingDirection
         andFindViableParentKeepingSibling = (b) ->
           depth = b.depth()
           # TODO: figure out if algorithms should be required to step sizes of 1
@@ -79,15 +81,24 @@ class BlockCache
           # return stopWalk unless Math.abs(depth - siblingDepth) < 2
           sibling = b if !sibling && depth == siblingDepth
           depth == targetDepth
+
         origin = walk fromBlock, inOppositeDirection, andFindViableParentKeepingSibling
-        position = below
-        if sibling?
-          block.$$locatedAt[oppositeOf[direction]] = sibling
-          sibling.$$locatedAt[direction] = block
       else
         throw new Error "can't yet handle offset: #{verticalOffset}"
 
-    throw new Error "did not find viable origin block - traversed AST is inconsistent" unless origin?
+    unless origin?
+      throw new Error "did not find viable origin block - traversed AST is inconsistent"
+
+    if verticalOffset != 0 and not sibling?
+      siblingDepth = block.depth()
+      cachedBlocksInOppositeDirection = (b) -> b.$$nextInSequenceAt[siblingDirection]
+      andTakeFirstSibling = (b) -> b.depth() == siblingDepth
+      sibling = walk block, cachedBlocksInOppositeDirection, andTakeFirstSibling
+
+    if sibling?
+      block.$$locatedAt[siblingDirection] = sibling
+      sibling.$$locatedAt[direction] = block
+
     block.$$locatedAt[oppositeOf[position]] = origin
     origin.$$locatedAt[position] = block
 
