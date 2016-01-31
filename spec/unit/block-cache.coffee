@@ -1,6 +1,7 @@
 {BlockCache, VerticalDirection, verticallyOppositeOf} = require '../../lib/block-cache'
 ExampleBlock = require '../utils/example-block'
 {Direction, oppositeOf} = require '../../lib/block-interface'
+_ = require 'lodash'
 
 describe "BlockCache", ->
   v = null
@@ -25,8 +26,12 @@ describe "BlockCache", ->
   {left, right} = Direction
   {above, below} = VerticalDirection
 
-  block = (index) -> new ExampleBlock sequence, index
-  blockCache = (index) -> new BlockCache block index
+  blockCache = (index) -> new BlockCache(new ExampleBlock(sequence, index))
+  blockCacheAt = (first) ->
+    args = if _.isString(first) then (a for a in arguments) else first
+    index = _.findIndex sequence, (p) -> _.isEqual(p, args)
+    throw Error "invalid block path: #{(a for a in args).join('.')}" if index < 0
+    blockCache index
 
   if (want = "function|_0fn|_1name|_2arguments|1|&y|mut x|2|u32|usize|_return|u8|body|42") != (have = (b[b.length-1] for b in sequence when b.length > 0).join('|'))
     console.log "HAVE - WANT:\n#{have}\n#{want}"
@@ -42,11 +47,11 @@ describe "BlockCache", ->
       describe "cursor", ->
         beforeEach ->
           @cd = switch direction
-            when left then blockCache(0)
-            when right then blockCache(sequence.length - 1)
+            when left then blockCache 0
+            when right then blockCache sequence.length - 1
             else throw new Error("unknown direction: #{direction}")
 
-          @c1 = blockCache 1
+          @c1 = blockCacheAt 'function', '_0fn'
 
         it "should initialize the cache on the cursor", ->
           b = @c1.cursor
@@ -65,8 +70,8 @@ describe "BlockCache", ->
             expect(@cd.cursor).toBe lastCursor
 
           it "returns siblings, parents and children from cache", ->
-            for rootIndex in [1,2]
-              c = blockCache rootIndex
+            for path in [['function', '_0fn'], ['function', '_1name']]
+              c = blockCacheAt path
               lc = c.cursor
               c.advance direction
               expect(c.advance oppositeOf direction).toBe lc
@@ -99,7 +104,7 @@ describe "BlockCache", ->
         ((fnName, direction) ->
           describe "#{fnName}() to #{direction}", ->
             it "should setup siblings", ->
-              c = blockCache 3
+              c = blockCacheAt 'function', '_1name'
               lc = c.cursor
               b = c[fnName](direction)
               expect(lc.depth()).toBe b.depth()
@@ -109,7 +114,7 @@ describe "BlockCache", ->
               expect(b.$$locatedAt[direction]).toBeFalsy()
 
             it "should setup direct parent/child relationships", ->
-              c = blockCache 5
+              c = blockCacheAt 'function', '_2arguments', '1'
               lc = c.cursor
               b = c[fnName](direction)
               expect(Math.abs(lc.depth() - b.depth())).toBe 1
@@ -126,7 +131,7 @@ describe "BlockCache", ->
       ((fnName) ->
         describe "#{fnName}()", ->
           it "should setup indirect parent relationships", ->
-            c = blockCache 10
+            c = blockCacheAt 'function', '_2arguments', '2', 'usize'
             lc = c.cursor
 
             expect(lc.$$nextInSequenceAt[left]).toBeUndefined()
@@ -135,7 +140,7 @@ describe "BlockCache", ->
 
             expect(lc.depth() - b.depth()).toBe 2
             expect(b.path()).toEqual ['function', '_return']
-            
+
             expect(b.$$locatedAt[right]).toBeUndefined()
             expect(b.$$locatedAt[left].path()).toEqual ['function', '_2arguments']
 
