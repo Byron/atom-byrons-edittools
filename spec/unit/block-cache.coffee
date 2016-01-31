@@ -135,6 +135,9 @@ describe "BlockCache", ->
 
             expect(lc.depth() - b.depth()).toBe 2
             expect(b.path()).toEqual ['function', '_return']
+            
+            expect(b.$$locatedAt[right]).toBeUndefined()
+            expect(b.$$locatedAt[left].path()).toEqual ['function', '_2arguments']
 
             expect(lc.$$nextInSequenceAt[right]).toBe b
             expect(lc.$$nextInSequenceAt[left]).not.toBeUndefined()

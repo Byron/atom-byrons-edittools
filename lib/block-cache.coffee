@@ -67,10 +67,19 @@ class BlockCache
       when Math.abs(verticalOffset) == 1
         position = if verticalOffset > 0 then below else above
       when verticalOffset < -1
+        siblingDepth = block.depth()
+        targetDepth = siblingDepth - 1
+        sibling = null
         inOppositeDirection = (b) -> peekFrom b, oppositeOf[direction]
-        andFindViableParent = (b) -> b.depth() == block.depth() - 1
-        origin = walk fromBlock, inOppositeDirection, andFindViableParent
+        andFindViableParentKeepingSibling = (b) ->
+          depth = b.depth()
+          sibling = b if !sibling && depth == siblingDepth
+          depth == targetDepth
+        origin = walk fromBlock, inOppositeDirection, andFindViableParentKeepingSibling
         position = below
+        if sibling?
+          block.$$locatedAt[oppositeOf[direction]] = sibling
+          sibling.$$locatedAt[direction] = block
       else
         throw new Error "can't yet handle offset: #{verticalOffset}"
 
