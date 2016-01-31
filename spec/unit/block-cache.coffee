@@ -1,4 +1,4 @@
-{BlockCache, Relationship, oppositeOf} = require '../../lib/block-cache'
+{BlockCache, Relationship, oppositeOf, directionToRelation} = require '../../lib/block-cache'
 ExampleBlock = require '../utils/example-block'
 {TraversalDirection} = require '../../lib/block-interface'
 _ = require 'lodash'
@@ -23,7 +23,7 @@ describe "BlockCache", ->
   sequence = ExampleBlock.makeSequenceDF sequence
 
   {previous, next} = TraversalDirection
-  {parent, child} = Relationship
+  {parent, child, nextSibling, previousSibling} = Relationship
 
   blockCache = (index) -> new BlockCache(new ExampleBlock(sequence, index))
   blockCacheAt = (first) ->
@@ -42,6 +42,8 @@ describe "BlockCache", ->
     expect(oppositeOf child).toBe parent
     expect(oppositeOf next).toBe previous
     expect(oppositeOf previous).toBe next
+    expect(oppositeOf nextSibling).toBe previousSibling
+    expect(oppositeOf previousSibling).toBe nextSibling
 
   for key, direction of TraversalDirection
     ((direction) ->
@@ -56,7 +58,7 @@ describe "BlockCache", ->
 
         it "should initialize the cache on the cursor", ->
           b = @c1.cursor
-          expect(b.$$locatedAt).toEqual {}
+          expect(b.$$cached).toEqual {}
           expect(b.$$nextInSequenceAt).toEqual {}
 
         describe "advance() to #{direction}", ->
@@ -110,9 +112,9 @@ describe "BlockCache", ->
               b = c[fnName](direction)
               expect(lc.depth()).toBe b.depth()
 
-              expect(lc.$$locatedAt[direction]).toBe b
-              expect(b.$$locatedAt[oppositeOf direction]).toBe lc
-              expect(b.$$locatedAt[direction]).toBeFalsy()
+              expect(lc.$$cached[direction]).toBe b
+              expect(b.$$cached[oppositeOf direction]).toBe lc
+              expect(b.$$cached[direction]).toBeFalsy()
 
             it "should setup siblings when they become apparent", ->
               c = blockCacheAt 'function', '_2arguments', '1', 'mut x'
@@ -120,14 +122,14 @@ describe "BlockCache", ->
               b = c[fnName](direction)
 
               expect(b.depth()).toBe lc.depth() - 1
-              expect(b.$$locatedAt[oppositeOf direction]).toBeUndefined()
+              expect(b.$$cached[directionToRelation oppositeOf direction]).toBeUndefined()
 
               c.cursor = lc
               nb = c[fnName](oppositeOf direction)
 
               expect(nb.depth()).toBe lc.depth() - 1
-              expect(nb.$$locatedAt[direction]).toBe b
-              expect(b.$$locatedAt[oppositeOf direction]).toBe nb
+              expect(nb.$$cached[directionToRelation direction]).toBe b
+              expect(b.$$cached[directionToRelation oppositeOf direction]).toBe nb
 
             it "should setup direct parent/child relationships", ->
               c = blockCacheAt 'function', '_2arguments', '1'
@@ -139,9 +141,9 @@ describe "BlockCache", ->
                 when next then child
                 when previous then parent
                 else throw new Error("invalid direction: #{direction}")
-              expect(lc.$$locatedAt[position]).toBe b
-              expect(b.$$locatedAt[oppositeOf position]).toBe lc
-              expect(b.$$locatedAt[position]).toBeFalsy()
+              expect(lc.$$cached[position]).toBe b
+              expect(b.$$cached[oppositeOf position]).toBe lc
+              expect(b.$$cached[position]).toBeFalsy()
 
         )(fnName, direction)
       ((fnName) ->
@@ -157,16 +159,16 @@ describe "BlockCache", ->
             expect(lc.depth() - b.depth()).toBe 2
             expect(b.path()).toEqual ['function', '_return']
 
-            expect(b.$$locatedAt[next]).toBeUndefined()
-            expect(b.$$locatedAt[previous].path()).toEqual ['function', '_2arguments']
+            expect(b.$$cached[nextSibling]).toBeUndefined()
+            expect(b.$$cached[previousSibling].path()).toEqual ['function', '_2arguments']
 
             expect(lc.$$nextInSequenceAt[next]).toBe b
             expect(lc.$$nextInSequenceAt[previous]).not.toBeUndefined()
             expect(b.$$nextInSequenceAt[previous]).toBe lc
 
-            p = b.$$locatedAt[parent]
+            p = b.$$cached[parent]
             expect(p.depth()).toBe b.depth() - 1
-            expect(p.$$locatedAt[child]).toBe b
+            expect(p.$$cached[child]).toBe b
 
           it "should setup indirect child relationships", ->
       )(fnName)

@@ -3,17 +3,28 @@
 Relationship =
   parent: 'parent'
   child: 'child'
+  nextSibling: 'nextSibling'
+  previousSibling: 'previousSibling'
 
-{parent, child} = Relationship
+{parent, child, nextSibling, previousSibling} = Relationship
 
 oppositeOf =
   parent: child
   child: parent
+  nextSibling: previousSibling
+  previousSibling: nextSibling
   next: TraversalDirection.previous
   previous: TraversalDirection.next
 
+directionToRelation =
+  next: nextSibling
+  previous: previousSibling
+
 publicOppositeOf = (directionOrRelation) ->
   oppositeOf[directionOrRelation] or ((d) -> throw new Error("invalid direction or relation: #{d}"))(directionOrRelation)
+
+publicDirectionToRelation = (direction) ->
+  directionToRelation[direction] or ((d) -> throw new Error("invalid direction: #{d}"))(direction)
 
 # Uses an implementation of a BlockInterface to keep track of the hierarchy
 # traversed so far.
@@ -44,7 +55,7 @@ class BlockCache
     setupNextCachedBlockAt fromBlock, direction
 
   withCacheFields = (block) ->
-    block.$$locatedAt = {}
+    block.$$cached = {}
     block.$$nextInSequenceAt = {}
     block
 
@@ -56,7 +67,7 @@ class BlockCache
     fromBlock.$$nextInSequenceAt[direction] = block
     block.$$nextInSequenceAt[oppositeOf[direction]] = fromBlock
 
-    siblingDirection = oppositeOf[direction]
+    siblingTraversalDirection = oppositeOf[direction]
     sibling = null
     origin = fromBlock
     verticalOffset = block.depth() - fromBlock.depth()
@@ -70,7 +81,7 @@ class BlockCache
 
         siblingDepth = block.depth()
         targetDepth = siblingDepth - 1
-        inOppositeDirection = (b) -> peekFrom b, siblingDirection
+        inOppositeDirection = (b) -> peekFrom b, siblingTraversalDirection
         andFindViableParentKeepingSibling = (b) ->
           depth = b.depth()
           # TODO: figure out if algorithms should be required to step sizes of 1
@@ -88,16 +99,16 @@ class BlockCache
 
     if verticalOffset != 0 and not sibling?
       siblingDepth = block.depth()
-      cachedBlocksInOppositeDirection = (b) -> b.$$nextInSequenceAt[siblingDirection]
+      cachedBlocksInOppositeDirection = (b) -> b.$$nextInSequenceAt[siblingTraversalDirection]
       andTakeFirstSibling = (b) -> b.depth() == siblingDepth
       sibling = walk block, cachedBlocksInOppositeDirection, andTakeFirstSibling
 
     if sibling?
-      block.$$locatedAt[siblingDirection] = sibling
-      sibling.$$locatedAt[direction] = block
+      block.$$cached[directionToRelation[siblingTraversalDirection]] = sibling
+      sibling.$$cached[directionToRelation[direction]] = block
 
-    block.$$locatedAt[oppositeOf[position]] = origin
-    origin.$$locatedAt[position] = block
+    block.$$cached[oppositeOf[position]] = origin
+    origin.$$cached[position] = block
 
   $setupCachedBlockAt: (direction) ->
     setupNextCachedBlockAt @cursor, direction
@@ -118,3 +129,4 @@ class BlockCache
 
 module.exports = {BlockCache, Relationship}
 module.exports.oppositeOf = publicOppositeOf
+module.exports.directionToRelation = publicDirectionToRelation
