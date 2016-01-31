@@ -1,4 +1,4 @@
-{Direction, oppositeOf} = require './block-interface'
+{Direction} = require './block-interface'
 
 VerticalDirection =
   above: 'above'
@@ -11,6 +11,12 @@ verticallyOppositeOf = (direction) ->
     when above then below
     when below then above
     else throw new Error("invalid vertical direction: #{direction}")
+
+oppositeOf =
+  above: below
+  below: above
+  right: Direction.left
+  left: Direction.right
 
 # Uses an implementation of a BlockInterface to keep track of the hierarchy
 # traversed so far.
@@ -42,21 +48,18 @@ class BlockCache
     withCacheFields block
 
     @cursor.$$nextInSequenceAt[direction] = block
-    block.$$nextInSequenceAt[oppositeOf direction] = @cursor
+    block.$$nextInSequenceAt[oppositeOf[direction]] = @cursor
 
-    [position, oppositePosition] =
+    position =
     switch verticalOffset = block.depth() - @cursor.depth()
-      when 0 then [direction, oppositeOf direction]
+      when 0 then direction
       when -1, 1
-        position = if verticalOffset == 1 then below else above
-        [position, verticallyOppositeOf position]
+        if verticalOffset == 1 then below else above
       else
         throw new Error("can't yet handle offsets larger 1")
 
+    block.$$locatedAt[oppositeOf[position]] = @cursor
     @cursor.$$locatedAt[position] = block
-    block.$$locatedAt[oppositePosition] = @cursor
-
-    block
 
   constructor: (firstBlock) ->
     @cursor = withCacheFields firstBlock
