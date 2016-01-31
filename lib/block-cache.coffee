@@ -37,6 +37,7 @@ oppositeOf =
 # The cache behaves much like a lexer, such that it has a cursor pointing to a
 # current block, and allows to peek in a direction without adjusting the cursor.
 class BlockCache
+  stopWalk = true
   walk = (block, next, visitor) ->
     stop = visitor block while not stop && block = next(block)
     block
@@ -73,6 +74,9 @@ class BlockCache
         inOppositeDirection = (b) -> peekFrom b, oppositeOf[direction]
         andFindViableParentKeepingSibling = (b) ->
           depth = b.depth()
+          # TODO: figure out if algorithms should be required to step sizes of 1
+          # Maybe a configurable feature. Also: is it needed ?
+          # return stopWalk unless Math.abs(depth - siblingDepth) < 2
           sibling = b if !sibling && depth == siblingDepth
           depth == targetDepth
         origin = walk fromBlock, inOppositeDirection, andFindViableParentKeepingSibling
