@@ -6,26 +6,32 @@ describe "BlockCache", ->
   v = null
   sequence =
     function:
-      _fn: v
-      _name: v
-      arguments:
+      _0fn: v
+      _1name: v
+      _2arguments:
         1:
-          'mut x': v
           '&y': v
+          'mut x': v
         2:
           u32: v
           usize: v
-      return:
+      _return:
         u8: v
       body:
         '42': v
 
   sequence = ExampleBlock.makeSequenceDF sequence
+
   {left, right} = Direction
   {above, below} = VerticalDirection
 
   block = (index) -> new ExampleBlock sequence, index
   blockCache = (index) -> new BlockCache block index
+
+  if (have = (b[b.length-1] for b in sequence when b.length > 0).join('|')) != (want = "function|_0fn|_1name|_2arguments|1|&y|mut x|2|u32|usize|_return|u8|body|42")
+    console.log "HAVE - WANT:\n#{have}\n#{want}"
+    throw new Error("unexpected sequence - please adjust expectation and/or sequence. See log for info.")
+
 
   it "should properly implement verticallyOppositeOf()", ->
     expect(verticallyOppositeOf above).toBe below
