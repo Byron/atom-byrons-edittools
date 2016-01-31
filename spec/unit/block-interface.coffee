@@ -1,4 +1,4 @@
-{Direction, BlockInterface, oppositeOf} = require '../../lib/block-interface'
+{TraversalDirection, BlockInterface, oppositeOf} = require '../../lib/block-interface'
 ExampleBlock = require '../utils/example-block'
 
 describe "BlockInterface", ->
@@ -13,7 +13,7 @@ describe "BlockInterface", ->
     c: v
 
   sequence = ExampleBlock.makeSequenceDF sequence
-  {left, right} = Direction
+  {previous, next} = TraversalDirection
 
   beforeEach ->
     @b0 = new ExampleBlock sequence, 0
@@ -34,19 +34,19 @@ describe "BlockInterface", ->
 
   describe "BlockInterface", ->
     describe 'at()', ->
-      it 'should return null if it reached the left document border', ->
-        expect(@b0.at left).toBe null
+      it 'should return null if it reached the previous document border', ->
+        expect(@b0.at previous).toBe null
 
-      it 'should return null if it reaches the right document border', ->
-        expect(@blast.at right).toBe null
+      it 'should return null if it reaches the next document border', ->
+        expect(@blast.at next).toBe null
 
-      it 'should return the right block within the document', ->
-        bnext = @b0.at right
+      it 'should return the next block within the document', ->
+        bnext = @b0.at next
         expect(bnext.path()).toEqual ['a']
         expect(bnext.depth()).toBe 1
 
-      it 'should return the left block within the document', ->
-        bprev = @blast.at left
+      it 'should return the previous block within the document', ->
+        bprev = @blast.at previous
         expect(bprev.path()).toEqual ['b', 'b', 'a']
         expect(bprev.depth()).toBe 3
 
@@ -63,7 +63,7 @@ describe "BlockInterface", ->
         expect(block(5).depth()).toBe block(4).depth() + 1
 
 describe "oppositeOf()", ->
-  for key, direction of Direction
+  for key, direction of TraversalDirection
     ((direction) ->
       it "should return the oppisite direction", ->
         expect(oppositeOf direction).not.toEqual direction

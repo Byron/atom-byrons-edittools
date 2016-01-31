@@ -1,4 +1,4 @@
-{Direction} = require './block-interface'
+{TraversalDirection} = require './block-interface'
 
 VerticalDirection =
   above: 'above'
@@ -15,8 +15,8 @@ verticallyOppositeOf = (direction) ->
 oppositeOf =
   above: below
   below: above
-  right: Direction.left
-  left: Direction.right
+  next: TraversalDirection.previous
+  previous: TraversalDirection.next
 
 # Uses an implementation of a BlockInterface to keep track of the hierarchy
 # traversed so far.

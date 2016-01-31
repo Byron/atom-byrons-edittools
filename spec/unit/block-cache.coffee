@@ -1,6 +1,6 @@
 {BlockCache, VerticalDirection, verticallyOppositeOf} = require '../../lib/block-cache'
 ExampleBlock = require '../utils/example-block'
-{Direction, oppositeOf} = require '../../lib/block-interface'
+{TraversalDirection, oppositeOf} = require '../../lib/block-interface'
 _ = require 'lodash'
 
 describe "BlockCache", ->
@@ -22,7 +22,7 @@ describe "BlockCache", ->
 
   sequence = ExampleBlock.makeSequenceDF sequence
 
-  {left, right} = Direction
+  {previous, next} = TraversalDirection
   {above, below} = VerticalDirection
 
   blockCache = (index) -> new BlockCache(new ExampleBlock(sequence, index))
@@ -41,13 +41,13 @@ describe "BlockCache", ->
     expect(verticallyOppositeOf above).toBe below
     expect(verticallyOppositeOf below).toBe above
 
-  for key, direction of Direction
+  for key, direction of TraversalDirection
     ((direction) ->
-      describe "cursor", ->
+      describe "traversal", ->
         beforeEach ->
           @cd = switch direction
-            when left then blockCache 0
-            when right then blockCache sequence.length - 1
+            when previous then blockCache 0
+            when next then blockCache sequence.length - 1
             else throw new Error("unknown direction: #{direction}")
 
           @c1 = blockCacheAt 'function', '_0fn'
@@ -99,7 +99,7 @@ describe "BlockCache", ->
 
   describe "caching", ->
     for fnName in ['peek', 'advance']
-      for direction of Direction
+      for direction of TraversalDirection
         ((fnName, direction) ->
           describe "#{fnName}() to #{direction}", ->
             it "should setup direct siblings", ->
@@ -134,8 +134,8 @@ describe "BlockCache", ->
               expect(Math.abs(lc.depth() - b.depth())).toBe 1
 
               position = switch direction
-                when right then below
-                when left then above
+                when next then below
+                when previous then above
                 else throw new Error("invalid direction: #{direction}")
               expect(lc.$$locatedAt[position]).toBe b
               expect(b.$$locatedAt[verticallyOppositeOf position]).toBe lc
@@ -148,19 +148,19 @@ describe "BlockCache", ->
             c = blockCacheAt 'function', '_2arguments', '2', 'usize'
             lc = c.cursor
 
-            expect(lc.$$nextInSequenceAt[left]).toBeUndefined()
+            expect(lc.$$nextInSequenceAt[previous]).toBeUndefined()
 
-            b = c[fnName](right)
+            b = c[fnName](next)
 
             expect(lc.depth() - b.depth()).toBe 2
             expect(b.path()).toEqual ['function', '_return']
 
-            expect(b.$$locatedAt[right]).toBeUndefined()
-            expect(b.$$locatedAt[left].path()).toEqual ['function', '_2arguments']
+            expect(b.$$locatedAt[next]).toBeUndefined()
+            expect(b.$$locatedAt[previous].path()).toEqual ['function', '_2arguments']
 
-            expect(lc.$$nextInSequenceAt[right]).toBe b
-            expect(lc.$$nextInSequenceAt[left]).not.toBeUndefined()
-            expect(b.$$nextInSequenceAt[left]).toBe lc
+            expect(lc.$$nextInSequenceAt[next]).toBe b
+            expect(lc.$$nextInSequenceAt[previous]).not.toBeUndefined()
+            expect(b.$$nextInSequenceAt[previous]).toBe lc
 
             parent = b.$$locatedAt[above]
             expect(parent.depth()).toBe b.depth() - 1

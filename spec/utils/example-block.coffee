@@ -1,13 +1,14 @@
-{Direction, Relation, BlockInterface} = require '../../lib/block-interface'
+{TraversalDirection, Relation, BlockInterface} = require '../../lib/block-interface'
 {isObject, keys, isArray, clone} = require 'lodash'
+{previous, next} = TraversalDirection
 
 # block where traversal order is depth first
 class ExampleBlock extends BlockInterface
   constructor: (@sequence, @index) ->
   at: (direction) ->
     nextIndex = switch direction
-      when Direction.left then @index - 1
-      when Direction.right then @index + 1
+      when previous then @index - 1
+      when next then @index + 1
       else throw new Error("invalid direction: #{direction}")
 
     return null if nextIndex >= @sequence.length || nextIndex < 0
