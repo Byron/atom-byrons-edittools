@@ -1,4 +1,4 @@
-SmartExpand = require '../lib/smart-expand'
+SmartExpand = require '../lib/byrons-edittools'
 
 describe "SmartExpand", ->
   describe "unit", ->

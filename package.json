@@ -1,10 +1,10 @@
 {
-  "name": "smart-expand",
-  "main": "./lib/smart-expand",
+  "name": "byrons-edittools",
+  "main": "./lib/byrons-edittools",
   "version": "0.0.0",
   "description": "Expand and grow your selection in the least surprising manner",
   "keywords": [],
-  "repository": "https://github.com/atom/smart-expand",
+  "repository": "https://github.com/atom/byrons-edittools",
   "license": "MIT",
   "engines": {
     "atom": ">=1.0.0 <2.0.0"

@@ -4,7 +4,7 @@ The **Byron's EditTools** atom package provides a variety of features designed t
 * **Expand and Shrink**
  - allows to grow and shrink your selection around the cursor(*s*) of your document, moving along its logical hierarchy.
 
-# Status: Incubation [![Build Status](https://travis-ci.org/Byron/atom-smart-expand.svg?branch=master)](https://travis-ci.org/Byron/atom-smart-expand)
+# Status: Incubation [![Build Status](https://travis-ci.org/Byron/atom-byrons-edittools.svg?branch=master)](https://travis-ci.org/Byron/atom-byrons-edittools)
 
 I just starting looking into solving this problem, there is no functionality just yet.
 

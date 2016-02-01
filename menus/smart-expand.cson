@@ -3,15 +3,15 @@
   {
     'label': 'Packages'
     'submenu': [
-      'label': 'smart-expand'
+      'label': 'byrons-edittools'
       'submenu': [
         {
           'label': 'Expand'
-          'command': 'smart-expand:grow'
+          'command': 'byrons-edittools:grow'
         },
         {
           'label': 'Contract'
-          'command': 'smart-expand:shrink'
+          'command': 'byrons-edittools:shrink'
         }
       ]
     ]
