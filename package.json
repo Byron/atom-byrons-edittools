@@ -1,5 +1,5 @@
 {
-  "name": "Byron's EditTools",
+  "name": "ByronsEditTools",
   "main": "./lib/atom-main",
   "version": "0.0.0",
   "description": "Comforts you with smart tools aiding your editing workflow",
