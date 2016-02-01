@@ -1,7 +1,7 @@
 The **Byron's EditTools** atom package provides a variety of features designed to make developers more productive. These are made to be intuitive and smart, thus doing automatically what you could not have done better manually.
 
 # Features
-* **Exapnd and Shrink**
+* **Expand and Shrink**
  - allows to grow and shrink your selection around the cursor(*s*) of your document, moving along its logical hierarchy.
 
 # Status: Incubation [![Build Status](https://travis-ci.org/Byron/atom-smart-expand.svg?branch=master)](https://travis-ci.org/Byron/atom-smart-expand)
