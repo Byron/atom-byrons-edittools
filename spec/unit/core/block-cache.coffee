@@ -1,6 +1,6 @@
-{BlockCache, Relationship, oppositeOf, directionToRelation} = require '../../lib/block-cache'
-ExampleBlock = require '../utils/example-block'
-{TraversalDirection} = require '../../lib/block-interface'
+{BlockCache, Relationship, oppositeOf, directionToRelation} = require '../../../lib/core/block-cache'
+ExampleBlock = require '../../utils/example-block'
+{TraversalDirection} = require '../../../lib/core/block-interface'
 _ = require 'lodash'
 
 describe "BlockCache", ->

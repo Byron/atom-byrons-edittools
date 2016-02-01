@@ -1,4 +1,4 @@
 describe "core", ->
   describe "unit", ->
-    require './unit/block-interface'
-    require './unit/block-cache'
+    require './unit/core/block-interface'
+    require './unit/core/block-cache'

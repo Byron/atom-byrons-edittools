@@ -1,5 +1,5 @@
-{TraversalDirection, BlockInterface, oppositeOf} = require '../../lib/block-interface'
-ExampleBlock = require '../utils/example-block'
+{TraversalDirection, BlockInterface, oppositeOf} = require '../../../lib/core/block-interface'
+ExampleBlock = require '../../utils/example-block'
 
 describe "BlockInterface", ->
   test = assert = it

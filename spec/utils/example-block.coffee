@@ -1,4 +1,4 @@
-{TraversalDirection, Relation, BlockInterface} = require '../../lib/block-interface'
+{TraversalDirection, Relation, BlockInterface} = require '../../lib/core/block-interface'
 {isObject, keys, isArray, clone} = require 'lodash'
 {previous, next} = TraversalDirection
 
