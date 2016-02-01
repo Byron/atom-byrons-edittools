@@ -1,8 +1,8 @@
 {
-  "name": "byrons-edittools",
-  "main": "./lib/byrons-edittools",
+  "name": "Byron's EditTools",
+  "main": "./lib/atom-main",
   "version": "0.0.0",
-  "description": "Expand and grow your selection in the least surprising manner",
+  "description": "Comforts you with smart tools aiding your editing workflow",
   "keywords": [],
   "repository": "https://github.com/atom/byrons-edittools",
   "license": "MIT",
