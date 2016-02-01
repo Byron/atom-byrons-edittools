@@ -148,6 +148,17 @@ describe "BlockCache", ->
         )(fnName, direction)
       ((fnName) ->
         describe "#{fnName}()", ->
+          it "should bark on invalid direction", ->
+            exceptionWasThrown = false
+            try
+              blockCache(0)[fnName]('myDirection')
+            catch e
+              console.log e
+              expect(e.toString()).toMatch "invalid direction"
+              exceptionWasThrown = true
+
+            expect(exceptionWasThrown).toBe true
+
           it "should setup indirect parent relationships", ->
             c = blockCacheAt 'function', '_2arguments', '2', 'usize'
             lc = c.cursor

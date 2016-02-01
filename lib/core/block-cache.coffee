@@ -127,6 +127,7 @@ class BlockCache
 
   # Peek towards the given direction, without advancing it
   peek: (direction) ->
+    throw new Error "invalid direction: #{direction}" unless direction of TraversalDirection
     peekFrom @cursor, direction
 
 module.exports = {BlockCache, Relationship}
