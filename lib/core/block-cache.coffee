@@ -147,4 +147,4 @@ class BlockCache
 
 module.exports = {BlockCache, Relationship}
 module.exports.oppositeOf = publicOppositeOf
-module.exports.toRelation = publicDirectionToRelation
+module.exports.directionToRelation = publicDirectionToRelation
