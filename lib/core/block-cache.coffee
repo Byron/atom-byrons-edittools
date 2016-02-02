@@ -59,16 +59,22 @@ class BlockCache
     block.$$cached = {}
     block
 
-  findBlockOriginAndPickupSibling = (fromBlock, siblingDepth) ->
-    targetDepth = siblingDepth - 1
+  findBlockOriginAndPickupSibling = (fromBlock, direction, nextBlockDepth) ->
+    siblingParentDepth = nextBlockDepth - 1
     relation = child
     sibling = null
-    inOppositeDirection = (b) -> peekFrom b, previous
-    andFindViableParentKeepingSibling = (b) ->
-      depth = b.depth()
-      sibling = b if !sibling && depth == siblingDepth
-      depth == targetDepth
-    origin = walk fromBlock, inOppositeDirection, andFindViableParentKeepingSibling
+    toPrevious = previous
+
+    towardsPreviousBlocks = (b) -> peekFrom b, toPrevious
+    andDoParentSearch = if direction != toPrevious
+      andFindViableParentKeepingSibling = (b) ->
+        depth = b.depth()
+        sibling = b if !sibling && depth == nextBlockDepth
+        depth == siblingParentDepth
+    else
+      andFindViableParent = (b) -> b.depth() == siblingParentDepth
+
+    origin = walk fromBlock, towardsPreviousBlocks, andDoParentSearch
     {origin, sibling, relation}
 
   setupNextCachedBlockAt = (fromBlock, direction) ->
@@ -79,7 +85,7 @@ class BlockCache
     fromBlock.$$cached[direction] = nextBlock
     nextBlock.$$cached[oppositeOf[direction]] = fromBlock
 
-    siblingTraversalDirection = oppositeOf[direction]
+    oppositeTraversalDirection = oppositeOf[direction]
     sibling = null
     origin = fromBlock
     relation = null
@@ -87,12 +93,11 @@ class BlockCache
     switch
       when verticalOffset == 0
         relation = direction
+        sibling = fromBlock
       when Math.abs(verticalOffset) == 1
         relation = if verticalOffset > 0 then child else parent
-      when verticalOffset < -1
-        {origin, sibling, relation} = findBlockOriginAndPickupSibling fromBlock, nextBlock.depth()
       else
-        throw new Error "can't yet handle offset: #{verticalOffset}"
+        {origin, sibling, relation} = findBlockOriginAndPickupSibling fromBlock, direction, nextBlock.depth()
 
     unless relation?
       throw new Error "forgot to define relation between blocks"
@@ -101,12 +106,13 @@ class BlockCache
 
     if verticalOffset != 0 and not sibling?
       siblingDepth = nextBlock.depth()
-      cachedBlocksInOppositeDirection = (b) -> b.$$cached[siblingTraversalDirection]
+      cachedBlocksInOppositeDirection = (b) -> b.$$cached[oppositeTraversalDirection]
       andTakeFirstSibling = (b) -> b.depth() == siblingDepth
       sibling = walk nextBlock, cachedBlocksInOppositeDirection, andTakeFirstSibling
 
-    if sibling?
-      nextBlock.$$cached[directionToRelation[siblingTraversalDirection]] = sibling
+    if sibling? and not nextBlock.$$cached[directionToRelation[oppositeTraversalDirection]]?
+      throw new Error 'invalid siblings detected' unless sibling.depth() == nextBlock.depth()
+      nextBlock.$$cached[directionToRelation[oppositeTraversalDirection]] = sibling
       sibling.$$cached[directionToRelation[direction]] = nextBlock
 
     nextBlock.$$cached[oppositeOf[relation]] = origin

@@ -113,7 +113,10 @@ describe "BlockCache", ->
               expect(lc.depth()).toBe b.depth()
 
               expect(lc.$$cached[direction]).toBe b
+              expect(lc.$$cached[directionToRelation direction]).toBe b
+
               expect(b.$$cached[oppositeOf direction]).toBe lc
+              expect(b.$$cached[directionToRelation oppositeOf direction]).toBe lc
               expect(b.$$cached[direction]).toBeFalsy()
 
             it "should setup siblings when they become apparent", ->
@@ -179,7 +182,27 @@ describe "BlockCache", ->
 
             p = b.$$cached[parent]
             expect(p.depth()).toBe b.depth() - 1
+            expect(p.path()).toEqual ['function']
             expect(p.$$cached[child]).toBe b
 
           it "should setup indirect child relationships", ->
+            c = blockCacheAt 'function', '_return'
+            lc = c.cursor
+
+            expect(lc.$$cached[previous]).toBeUndefined()
+
+            b = c[fnName](previous)
+
+            parentPath = ['function', '_2arguments', '2']
+            expect(lc.depth() - b.depth()).toBe - 2
+            expect(b.path()).toEqual parentPath.concat ['usize']
+
+            expect(b.$$cached[nextSibling]).toBeUndefined()
+            expect(b.$$cached[previousSibling].path()).toEqual parentPath.concat ['u32']
+
+            expect(lc.$$cached[previous]).toBe b
+            expect(lc.$$cached[next]).toBeUndefined()
+            expect(b.$$cached[next]).toBe lc
+
+            expect(b.$$cached[parent].path()).toEqual parentPath
       )(fnName)
