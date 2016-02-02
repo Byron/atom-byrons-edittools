@@ -3,6 +3,8 @@ The **Byron's EditTools** atom package provides a variety of features designed t
 # Features
 * **Expand and Shrink**
  - allows to grow and shrink your selection around the cursor(*s*) of your document, moving along its logical hierarchy.
+* **Where Am I ?** (*TBD*)
+ - Visualize the scope one is in right now. This helps with white-space sensitive languages where it can become difficult to make out the scope you are currently in, e.g. `myFunc() -> for x in y -> if x -> while x-- -> if x % 2`
 
 # Status: Incubation [![Build Status](https://travis-ci.org/Byron/atom-byrons-edittools.svg?branch=master)](https://travis-ci.org/Byron/atom-byrons-edittools)
 
