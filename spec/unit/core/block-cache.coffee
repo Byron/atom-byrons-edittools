@@ -1,7 +1,9 @@
-{BlockCache, Relationship, oppositeOf, directionToRelation} = require '../../../lib/core/block-cache'
+{BlockCache, Relationship, oppositeOf, directionToRelation} =
+                                        require('../../../lib/core/block-cache')
 ExampleBlock = require '../../utils/example-block'
 {TraversalDirection} = require '../../../lib/core/block-interface'
 _ = require 'lodash'
+toRelation = directionToRelation
 
 describe "BlockCache", ->
   v = null
@@ -29,12 +31,17 @@ describe "BlockCache", ->
   blockCacheAt = (first) ->
     args = if _.isString(first) then (a for a in arguments) else first
     index = _.findIndex sequence, (p) -> _.isEqual(p, args)
-    throw Error "invalid block path: #{(a for a in args).join('.')}" if index < 0
+    if index < 0
+      throw Error "invalid block path: #{(a for a in args).join('.')}"
     blockCache index
 
-  if (want = "function|_0fn|_1name|_2arguments|1|mut x|2|u32|usize|_return|u8|body|42") != (have = (b[b.length-1] for b in sequence when b.length > 0).join('|'))
+  want = "function|_0fn|_1name|_2arguments|1|mut x|2|u32|usize|_return|u8|\
+          body|42"
+  have = (b[b.length-1] for b in sequence when b.length > 0).join('|')
+  if want != have
     console.log "HAVE - WANT:\n#{have}\n#{want}"
-    throw new Error("unexpected sequence - please adjust expectation and/or sequence. See log for info.")
+    throw new Error("unexpected sequence - please adjust expectation and/or
+    sequence. See log for info.")
 
 
   it "should properly implement oppositeOf()", ->
@@ -67,7 +74,8 @@ describe "BlockCache", ->
             expect(@c1.advance direction).toBe @c1.cursor
             expect(@c1.cursor).not.toBe lastCursor
 
-          it "returns null if it reaches end of document and doesn't advance cursor", ->
+          it "returns null if it reaches end of document and doesn't advance
+              cursor", ->
             lastCursor = @cd.cursor
             expect(@cd.advance direction).toBe null
             expect(@cd.cursor).toBe lastCursor
@@ -93,7 +101,8 @@ describe "BlockCache", ->
 
           it "peek results are consistent in the face of advance", ->
             lastCursor = @cd.cursor
-            expect(peeked = @cd.peek oppositeOf direction).not.toEqual @cd.peek direction
+            peeked = @cd.peek oppositeOf direction
+            expect(peeked).not.toEqual @cd.peek direction
             expect(nextCursor = @cd.advance oppositeOf direction).toBe peeked
             expect(@cd.peek direction).toBe lastCursor
 
@@ -113,10 +122,12 @@ describe "BlockCache", ->
               expect(lc.depth()).toBe b.depth()
 
               expect(lc.$$cached[direction]).toBe b
-              expect(lc.$$cached[directionToRelation direction]).toBe b
+              directionSibling = lc.$$cached[toRelation direction]
+              expect(directionSibling).toBe b
 
               expect(b.$$cached[oppositeOf direction]).toBe lc
-              expect(b.$$cached[directionToRelation oppositeOf direction]).toBe lc
+              oppositeSibling = b.$$cached[toRelation oppositeOf direction]
+              expect(oppositeSibling).toBe lc
               expect(b.$$cached[direction]).toBeFalsy()
 
             it "should setup siblings when they become apparent", ->
@@ -125,14 +136,15 @@ describe "BlockCache", ->
               b = c[fnName](direction)
 
               expect(b.depth()).toBe lc.depth() - 1
-              expect(b.$$cached[directionToRelation oppositeOf direction]).toBeUndefined()
+              oppositeSibling = b.$$cached[toRelation oppositeOf direction]
+              expect(oppositeSibling).toBeUndefined()
 
               c.cursor = lc
               nb = c[fnName](oppositeOf direction)
 
               expect(nb.depth()).toBe lc.depth() - 1
-              expect(nb.$$cached[directionToRelation direction]).toBe b
-              expect(b.$$cached[directionToRelation oppositeOf direction]).toBe nb
+              expect(nb.$$cached[toRelation direction]).toBe b
+              expect(b.$$cached[toRelation oppositeOf direction]).toBe nb
 
             it "should setup direct parent/child relationships", ->
               c = blockCacheAt 'function', '_2arguments', '1'
@@ -174,7 +186,8 @@ describe "BlockCache", ->
             expect(b.path()).toEqual ['function', '_return']
 
             expect(b.$$cached[nextSibling]).toBeUndefined()
-            expect(b.$$cached[previousSibling].path()).toEqual ['function', '_2arguments']
+            expect(b.$$cached[previousSibling].path()).toEqual ['function',
+                                                                '_2arguments']
 
             expect(lc.$$cached[next]).toBe b
             expect(lc.$$cached[previous]).not.toBeUndefined()
@@ -198,7 +211,8 @@ describe "BlockCache", ->
             expect(b.path()).toEqual parentPath.concat ['usize']
 
             expect(b.$$cached[nextSibling]).toBeUndefined()
-            expect(b.$$cached[previousSibling].path()).toEqual parentPath.concat ['u32']
+            siblingPath = parentPath.concat ['u32']
+            expect(b.$$cached[previousSibling].path()).toEqual siblingPath
 
             expect(lc.$$cached[previous]).toBe b
             expect(lc.$$cached[next]).toBeUndefined()

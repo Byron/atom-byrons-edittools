@@ -17,15 +17,18 @@ oppositeOf =
   next: TraversalDirection.previous
   previous: TraversalDirection.next
 
-directionToRelation =
+toRelation =
   next: nextSibling
   previous: previousSibling
 
 publicOppositeOf = (directionOrRelation) ->
-  oppositeOf[directionOrRelation] or ((d) -> throw new Error("invalid direction or relation: #{d}"))(directionOrRelation)
+  oppositeOf[directionOrRelation] or
+  ((d) ->
+    throw new Error("invalid direction or relation: #{d}"))(directionOrRelation)
 
 publicDirectionToRelation = (direction) ->
-  directionToRelation[direction] or ((d) -> throw new Error("invalid direction: #{d}"))(direction)
+  toRelation[direction] or
+  ((d) -> throw new Error("invalid direction: #{d}"))(direction)
 
 # Uses an implementation of a BlockInterface to keep track of the hierarchy
 # traversed so far.
@@ -39,9 +42,9 @@ publicDirectionToRelation = (direction) ->
 # It owns the blocks it keeps for you, and modifies them to keep track of their
 # relationships while allowing fast traversal.
 #
-# It's worth noting that the root of the tree will change as the traversal proceeds,
-# as we don't expect it to begin top-most. After all, we discover the document
-# as we traverse it.
+# It's worth noting that the root of the tree will change as the traversal
+# proceeds, as we don't expect it to begin top-most. After all, we discover the
+# document as we traverse it.
 #
 # The cache behaves much like a lexer, such that it has a cursor pointing to a
 # current block, and allows to peek in a direction without adjusting the cursor.
@@ -85,7 +88,7 @@ class BlockCache
     fromBlock.$$cached[direction] = nextBlock
     nextBlock.$$cached[oppositeOf[direction]] = fromBlock
 
-    oppositeTraversalDirection = oppositeOf[direction]
+    oppositeDirection = oppositeOf[direction]
     sibling = null
     origin = fromBlock
     relation = null
@@ -97,23 +100,27 @@ class BlockCache
       when Math.abs(verticalOffset) == 1
         relation = if verticalOffset > 0 then child else parent
       else
-        {origin, sibling, relation} = findBlockOriginAndPickupSibling fromBlock, direction, nextBlock.depth()
+        {origin, sibling, relation} =
+        findBlockOriginAndPickupSibling fromBlock, direction, nextBlock.depth()
 
     unless relation?
       throw new Error "forgot to define relation between blocks"
     unless origin?
-      throw new Error "did not find viable origin block - traversed AST is inconsistent"
+      throw new Error "did not find viable origin block - traversed AST
+                       is inconsistent"
 
     if verticalOffset != 0 and not sibling?
       siblingDepth = nextBlock.depth()
-      cachedBlocksInOppositeDirection = (b) -> b.$$cached[oppositeTraversalDirection]
+      inOppositeDirection =
+        (b) -> b.$$cached[oppositeDirection]
       andTakeFirstSibling = (b) -> b.depth() == siblingDepth
-      sibling = walk nextBlock, cachedBlocksInOppositeDirection, andTakeFirstSibling
+      sibling = walk nextBlock, inOppositeDirection, andTakeFirstSibling
 
-    if sibling? and not nextBlock.$$cached[directionToRelation[oppositeTraversalDirection]]?
-      throw new Error 'invalid siblings detected' unless sibling.depth() == nextBlock.depth()
-      nextBlock.$$cached[directionToRelation[oppositeTraversalDirection]] = sibling
-      sibling.$$cached[directionToRelation[direction]] = nextBlock
+    if sibling? and not nextBlock.$$cached[toRelation[oppositeDirection]]?
+      unless sibling.depth() == nextBlock.depth()
+        throw new Error 'invalid siblings detected'
+      nextBlock.$$cached[toRelation[oppositeDirection]] = sibling
+      sibling.$$cached[toRelation[direction]] = nextBlock
 
     nextBlock.$$cached[oppositeOf[relation]] = origin
     origin.$$cached[relation] = nextBlock
@@ -124,8 +131,9 @@ class BlockCache
   constructor: (firstBlock) ->
     @cursor = withCacheFields firstBlock
 
-  # Advance the cache's cursor to the given block direction and returns changed cursor
-  # or null if the document ended. In the latter case, the cursor did not change
+  # Advance the cache's cursor to the given block direction and returns changed
+  # cursor or null if the document ended. In the latter case, the cursor did not
+  # change
   advance: (direction) ->
     if next = @peek direction
       return @cursor = next
@@ -133,9 +141,10 @@ class BlockCache
 
   # Peek towards the given direction, without advancing it
   peek: (direction) ->
-    throw new Error "invalid direction: #{direction}" unless direction of TraversalDirection
+    unless direction of TraversalDirection
+      throw new Error "invalid direction: #{direction}"
     peekFrom @cursor, direction
 
 module.exports = {BlockCache, Relationship}
 module.exports.oppositeOf = publicOppositeOf
-module.exports.directionToRelation = publicDirectionToRelation
+module.exports.toRelation = publicDirectionToRelation

@@ -1,4 +1,5 @@
-{TraversalDirection, BlockInterface, oppositeOf} = require '../../../lib/core/block-interface'
+{TraversalDirection, BlockInterface, oppositeOf} =
+                                    require '../../../lib/core/block-interface'
 ExampleBlock = require '../../utils/example-block'
 
 describe "BlockInterface", ->
@@ -20,7 +21,7 @@ describe "BlockInterface", ->
     @blast = new ExampleBlock sequence, sequence.length - 1
 
   describe 'ExampleBlock', ->
-    it 'should flatten structures depth first, keeping all encountered paths', ->
+    it 'should flatten structures DF, keeping all encountered paths', ->
       expect(sequence[0]).toEqual []
       expect(sequence[sequence.length-1]).toEqual ['c']
 
