@@ -9,7 +9,7 @@ Relationship =
 {parent, child, nextSibling, previousSibling} = Relationship
 {previous, next} = TraversalDirection
 
-oppositeOf =
+knownDirectionsAndRelations = oppositeOf =
   parent: child
   child: parent
   nextSibling: previousSibling
@@ -20,6 +20,12 @@ oppositeOf =
 toRelation =
   next: nextSibling
   previous: previousSibling
+
+toDirection =
+  nextSibling: next
+  previousSibling: previous
+  parent: previous
+  child: next
 
 publicOppositeOf = (directionOrRelation) ->
   oppositeOf[directionOrRelation] or
@@ -54,9 +60,9 @@ class BlockCache
     stop = visitor block while not stop && block = next(block)
     block
 
-  peekFrom = (fromBlock, direction) ->
-    return next if next = fromBlock.$$cached[direction]
-    setupNextCachedBlockAt fromBlock, direction
+  peekFrom = (fromBlock, directionOrRelation) ->
+    return next if next = fromBlock.$$cached[directionOrRelation]
+    setupNextCachedBlockAt fromBlock, directionOrRelation
 
   withCacheFields = (block) ->
     block.$$cached = {}
@@ -80,7 +86,28 @@ class BlockCache
     origin = walk fromBlock, towardsPreviousBlocks, andDoParentSearch
     {origin, sibling, relation}
 
-  setupNextCachedBlockAt = (fromBlock, direction) ->
+  setupNextCachedBlockAt = (fromBlock, directionOrRelation) ->
+    (if directionOrRelation of TraversalDirection
+      setupNextCachedBlockAtDirection
+    else if directionOrRelation of Relationship
+      setupNextCachedBlockAtRelation
+    else
+      -> throw new Error "unknown case encountered
+                          - fix me: #{directionOrRelation}"
+    )(fromBlock, directionOrRelation)
+
+  setupNextCachedBlockAtRelation = (fromBlock, relation) ->
+    direction = toDirection[relation]
+    blockDepth = fromBlock.depth()
+    andPeek = (b) -> peekFrom b, direction
+    butAbortIfNeeded = switch relation
+      when nextSibling, previousSibling then (nb) -> nb.depth() >= blockDepth
+      else throw new Error "tbd"
+
+    candidate = walk fromBlock, andPeek, butAbortIfNeeded
+    if candidate? then candidate else null
+
+  setupNextCachedBlockAtDirection = (fromBlock, direction) ->
     nextBlock = fromBlock.at direction
     return nextBlock unless nextBlock?
     withCacheFields nextBlock
@@ -125,25 +152,22 @@ class BlockCache
     nextBlock.$$cached[oppositeOf[relation]] = origin
     origin.$$cached[relation] = nextBlock
 
-  $setupCachedBlockAt: (direction) ->
-    setupNextCachedBlockAt @cursor, direction
-
   constructor: (firstBlock) ->
     @cursor = withCacheFields firstBlock
 
-  # Advance the cache's cursor to the given block direction and returns changed
-  # cursor or null if the document ended. In the latter case, the cursor did not
-  # change
-  advance: (direction) ->
-    if next = @peek direction
+  # Advance the cache's cursor to the given block direction or relation and
+  # returns changed cursor or null if the document ended. In the latter case,
+  # the cursor did not change
+  advance: (directionOrRelation) ->
+    if next = @peek directionOrRelation
       return @cursor = next
     null
 
-  # Peek towards the given direction, without advancing it
-  peek: (direction) ->
-    unless direction of TraversalDirection
-      throw new Error "invalid direction: #{direction}"
-    peekFrom @cursor, direction
+  # Peek towards the given direction or relation, without advancing it
+  peek: (directionOrRelation) ->
+    unless directionOrRelation of knownDirectionsAndRelations
+      throw new Error "invalid direction: #{directionOrRelation}"
+    peekFrom @cursor, directionOrRelation
 
 module.exports = {BlockCache, Relationship}
 module.exports.oppositeOf = publicOppositeOf

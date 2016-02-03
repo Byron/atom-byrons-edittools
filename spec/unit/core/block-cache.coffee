@@ -108,6 +108,20 @@ describe "BlockCache", ->
 
             expect(@cd.advance direction).toBe lastCursor
             expect(@cd.peek oppositeOf direction).toBe nextCursor
+
+          it "can peek siblings", ->
+            c = blockCacheAt 'function', '_1name'
+            lc = c.cursor
+            siblingRelation = toRelation direction
+            expect(lc.$$cached[siblingRelation]).toBeUndefined()
+
+            b = c.peek siblingRelation
+            expect(c.cursor).toBe lc
+
+            expect(lc.$$cached[siblingRelation].depth()).toBe lc.depth()
+            expect(b.depth()).toBe lc.depth()
+            expect(b.$$cached[oppositeOf siblingRelation]).toBe lc
+
     )(direction)
 
   describe "caching", ->
@@ -161,12 +175,13 @@ describe "BlockCache", ->
               expect(b.$$cached[position]).toBeFalsy()
 
         )(fnName, direction)
+
       ((fnName) ->
         describe "#{fnName}()", ->
           it "should bark on invalid direction", ->
             exceptionWasThrown = false
             try
-              blockCache(0)[fnName]('myDirection')
+              blockCache(0)[fnName]('myDirection or relation')
             catch e
               console.log e
               expect(e.toString()).toMatch "invalid direction"
