@@ -100,17 +100,16 @@ class BlockCache
     direction = toDirection[relation]
     blockDepth = fromBlock.depth()
     andPeek = (b) -> peekFrom b, direction
-    [isGoodCandidate, butAbortIfNeeded] =
-      switch relation
-        when nextSibling, previousSibling
-          [
-            (nb) -> nb.depth() >= blockDepth
-            (c) -> c.depth() == blockDepth
-          ]
-        else throw new Error "tbd"
+    {isGoodCandidate, butAbortIfNeeded} = switch relation
+      when nextSibling, previousSibling
+        isGoodCandidate: (nb) -> nb.depth() == blockDepth
+        butAbortIfNeeded: (c) -> c.depth() <= blockDepth
+      else throw new Error "tbd"
 
     candidate = walk fromBlock, andPeek, butAbortIfNeeded
-    if candidate? and isGoodCandidate(candidate) then candidate else null
+    if candidate? and isGoodCandidate(candidate)
+      candidate
+    else null
 
   setupNextCachedBlockAtDirection = (fromBlock, direction) ->
     nextBlock = fromBlock.at direction

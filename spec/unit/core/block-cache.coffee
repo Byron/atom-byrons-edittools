@@ -156,13 +156,23 @@ describe "BlockCache", ->
               otherSiblingRelation = oppositeOf siblingRelation
 
               b = c[fnName](siblingRelation)
-
+              expect(b.path()).toEqual lut[oppositeOf direction]
               expect(lc.$$cached[siblingRelation]).toBe b
               expect(b.$$cached[otherSiblingRelation]).toBe lc
 
             it "peeking siblings past the end of the document yields null", ->
               c = setupCacheAtEndOfDocument(direction)
               expect(c[fnName](toRelation direction)).toBe null
+
+            it "returns null if there is no sibling in that direction", ->
+              prefix = ['function', '_2arguments']
+              lut =
+                next: prefix.concat ['2']
+                previous: prefix.concat ['1']
+
+              c = blockCacheAt lut[direction]
+              b = c[fnName](toRelation direction)
+              expect(b).toBe null
 
             it "should setup siblings when they become apparent", ->
               c = blockCacheAt 'function', '_2arguments', '1', 'mut x'
