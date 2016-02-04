@@ -121,7 +121,6 @@ describe "BlockCache", ->
             expect(lc.$$cached[siblingRelation].depth()).toBe lc.depth()
             expect(b.depth()).toBe lc.depth()
             expect(b.$$cached[oppositeOf siblingRelation]).toBe lc
-
     )(direction)
 
   describe "caching", ->
@@ -143,6 +142,21 @@ describe "BlockCache", ->
               oppositeSibling = b.$$cached[toRelation oppositeOf direction]
               expect(oppositeSibling).toBe lc
               expect(b.$$cached[direction]).toBeFalsy()
+
+            it "can peek siblings separated by multiple traversal steps", ->
+              lut =
+                next: ['function', '_2arguments']
+                previous: ['function', '_return']
+
+              c = blockCacheAt lut[direction]
+              lc = c.cursor
+              siblingRelation = toRelation direction
+              otherSiblingRelation = oppositeOf siblingRelation
+
+              b = c[fnName](siblingRelation)
+
+              expect(lc.$$cached[siblingRelation]).toBe b
+              expect(b.$$cached[otherSiblingRelation]).toBe lc
 
             it "should setup siblings when they become apparent", ->
               c = blockCacheAt 'function', '_2arguments', '1', 'mut x'
