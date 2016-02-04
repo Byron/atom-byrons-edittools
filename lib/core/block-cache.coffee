@@ -56,6 +56,7 @@ publicDirectionToRelation = (direction) ->
 # current block, and allows to peek in a direction without adjusting the cursor.
 class BlockCache
   stopWalk = true
+  neverStop = false
   walk = (block, next, visitor) ->
     stop = visitor block while not stop && block = next(block)
     block
@@ -104,6 +105,10 @@ class BlockCache
       when nextSibling, previousSibling
         isGoodCandidate: (nb) -> nb.depth() == blockDepth
         butAbortIfNeeded: (c) -> c.depth() <= blockDepth
+      when parent
+        isParent = (b) -> b.depth() == blockDepth - 1
+        isGoodCandidate: isParent
+        butAbortIfNeeded: isParent
       else throw new Error "tbd"
 
     candidate = walk fromBlock, andPeek, butAbortIfNeeded
