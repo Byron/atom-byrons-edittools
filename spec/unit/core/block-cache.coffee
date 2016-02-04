@@ -52,15 +52,17 @@ describe "BlockCache", ->
     expect(oppositeOf nextSibling).toBe previousSibling
     expect(oppositeOf previousSibling).toBe nextSibling
 
+  setupCacheAtEndOfDocument = (direction) ->
+    switch direction
+      when next then blockCache sequence.length - 1
+      when previous then blockCache 0
+      else throw new Error("unknown direction: #{direction}")
+
   for key, direction of TraversalDirection
     ((direction) ->
       describe "traversal", ->
         beforeEach ->
-          @cd = switch direction
-            when previous then blockCache 0
-            when next then blockCache sequence.length - 1
-            else throw new Error("unknown direction: #{direction}")
-
+          @cd = setupCacheAtEndOfDocument(direction)
           @c1 = blockCacheAt 'function', '_0fn'
 
         it "should initialize the cache on the cursor", ->
@@ -157,6 +159,10 @@ describe "BlockCache", ->
 
               expect(lc.$$cached[siblingRelation]).toBe b
               expect(b.$$cached[otherSiblingRelation]).toBe lc
+
+            it "peeking siblings past the end of the document yields null", ->
+              c = setupCacheAtEndOfDocument(direction)
+              expect(c[fnName](toRelation direction)).toBe null
 
             it "should setup siblings when they become apparent", ->
               c = blockCacheAt 'function', '_2arguments', '1', 'mut x'
