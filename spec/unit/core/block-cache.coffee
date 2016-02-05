@@ -2,6 +2,8 @@
                                         require('../../../lib/core/block-cache')
 ExampleBlock = require '../../utils/example-block'
 {TraversalDirection} = require '../../../lib/core/block-interface'
+initMatchers = require './matchers'
+
 _ = require 'lodash'
 toRelation = directionToRelation
 
@@ -43,6 +45,8 @@ describe "BlockCache", ->
     throw new Error("unexpected sequence - please adjust expectation and/or
     sequence. See log for info.")
 
+  beforeEach ->
+    initMatchers this
 
   it "should properly implement oppositeOf()", ->
     expect(oppositeOf parent).toBe child
@@ -245,7 +249,7 @@ describe "BlockCache", ->
             p = b.$$cached[parent]
             expect(p.depth()).toBe b.depth() - 1
             expect(p.path()).toEqual ['function']
-            expect(p.$$cached[child]).toBe b
+            expect(b).toBeChildOf(p)
 
           it "should setup indirect child relationships", ->
             c = blockCacheAt 'function', '_return'

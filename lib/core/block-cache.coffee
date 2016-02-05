@@ -146,8 +146,8 @@ class BlockCache
     unless relation?
       throw new Error "forgot to define relation between blocks"
     unless origin?
-      throw new Error "did not find viable origin block - traversed AST
-                       is inconsistent"
+      throw new Error "did not find viable origin block towards '#{direction}' -
+                       traversed AST is inconsistent"
 
     if verticalOffset != 0 and not sibling?
       siblingDepth = nextBlock.depth()
