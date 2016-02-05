@@ -2,7 +2,7 @@
                                         require('../../../lib/core/block-cache')
 ExampleBlock = require '../../utils/example-block'
 {TraversalDirection} = require '../../../lib/core/block-interface'
-initMatchers = require './matchers'
+initMatchers = require './block-cache-matchers'
 
 _ = require 'lodash'
 toRelation = directionToRelation
@@ -242,9 +242,9 @@ describe "BlockCache", ->
             expect(b.$$cached[previousSibling].path()).toEqual ['function',
                                                                 '_2arguments']
 
-            expect(lc.$$cached[next]).toBe b
+            expect(b).toBeNextOf lc
             expect(lc.$$cached[previous]).not.toBeUndefined()
-            expect(b.$$cached[previous]).toBe lc
+            expect(lc).toBePreviousOf b
 
             p = b.$$cached[parent]
             expect(p.depth()).toBe b.depth() - 1
@@ -267,9 +267,9 @@ describe "BlockCache", ->
             siblingPath = parentPath.concat ['u32']
             expect(b.$$cached[previousSibling].path()).toEqual siblingPath
 
-            expect(lc.$$cached[previous]).toBe b
+            expect(b).toBePreviousOf lc
             expect(lc.$$cached[next]).toBeUndefined()
-            expect(b.$$cached[next]).toBe lc
+            expect(lc).toBeNextOf b
 
             expect(b.$$cached[parent].path()).toEqual parentPath
 
@@ -280,7 +280,7 @@ describe "BlockCache", ->
 
             expect(b.path()).toEqual ['function']
             expect(b.$$cached[child]).toBe lc
-            expect(lc.$$cached[parent]).toBe b
+            expect(b).toBeParentOf lc
 
           it "should return null parent at the root of the document", ->
             c = blockCacheAt []
@@ -296,7 +296,7 @@ describe "BlockCache", ->
             lc = c.cursor
             b = c[fnName](child)
 
-            expect(b.$$cached[parent]).toBe lc
+            expect(lc).toBeParentOf b
             expect(b.$$cached[child]).toBeUndefined()
             expect(lc.$$cached[child]).toBe b
             expect(lc.$$cached[parent]).toBeUndefined()
