@@ -276,5 +276,12 @@ describe "BlockCache", ->
             expect(lc.$$cached[parent]).toBe b
 
           it "should return null at the root of the document", ->
+            c = blockCacheAt []
+            lc = c.cursor
+            b = c[fnName](parent)
+
+            expect(b).toBe null
+            expect(lc.$$cached[parent]).toBeUndefined()
+            expect(lc.$$cached[child]).toBeUndefined()
 
       )(fnName)
