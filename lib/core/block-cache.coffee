@@ -109,7 +109,11 @@ class BlockCache
         isParent = (b) -> b.depth() == blockDepth - 1
         isGoodCandidate: isParent
         butAbortIfNeeded: isParent
-      else throw new Error "tbd"
+      when child
+        isChild = (b) -> b.depth() == blockDepth + 1
+        isGoodCandidate: isChild
+        butAbortIfNeeded: isChild
+      else throw new Error "unexpected relation: #{relation}"
 
     candidate = walk fromBlock, andPeek, butAbortIfNeeded
     if candidate? and isGoodCandidate(candidate)

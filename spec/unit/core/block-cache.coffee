@@ -52,6 +52,7 @@ describe "BlockCache", ->
     expect(oppositeOf nextSibling).toBe previousSibling
     expect(oppositeOf previousSibling).toBe nextSibling
 
+  atTheVeryEnd = next
   setupCacheAtEndOfDocument = (direction) ->
     switch direction
       when next then blockCache sequence.length - 1
@@ -275,7 +276,7 @@ describe "BlockCache", ->
             expect(b.$$cached[child]).toBe lc
             expect(lc.$$cached[parent]).toBe b
 
-          it "should return null at the root of the document", ->
+          it "should return null parent at the root of the document", ->
             c = blockCacheAt []
             lc = c.cursor
             b = c[fnName](parent)
@@ -284,4 +285,29 @@ describe "BlockCache", ->
             expect(lc.$$cached[parent]).toBeUndefined()
             expect(lc.$$cached[child]).toBeUndefined()
 
+          it "should obtain children", ->
+            c = blockCacheAt ['function']
+            lc = c.cursor
+            b = c[fnName](child)
+
+            expect(b.$$cached[parent]).toBe lc
+            expect(b.$$cached[child]).toBeUndefined()
+            expect(lc.$$cached[child]).toBe b
+            expect(lc.$$cached[parent]).toBeUndefined()
+
+          it "should return null child at the end of the document", ->
+            c = setupCacheAtEndOfDocument(atTheVeryEnd)
+            lc = c.cursor
+            b = c[fnName](child)
+
+            expect(b).toBe null
+            expect(lc.$$cached[child]).toBeUndefined()
+
+          it "should return null if there is no child", ->
+            c = blockCacheAt ['function', '_return', 'u8']
+            lc = c.cursor
+            b = c[fnName](child)
+
+            expect(b).toBe null
+            expect(lc.$$cached[child]).toBeUndefined()
       )(fnName)
