@@ -3,49 +3,20 @@
 ExampleBlock = require '../../utils/example-block'
 {TraversalDirection} = require '../../../lib/core/block-interface'
 initMatchers = require './block-cache-matchers'
+data = require '../../fixtures/data'
+{makeBlockCacheBuilders} = require '../../utils/base'
 
 _ = require 'lodash'
 toRelation = directionToRelation
 
 describe "BlockCache", ->
-  v = null
-  sequence =
-    function:
-      _0fn: v
-      _1name: v
-      _2arguments:
-        1:
-          'mut x': v
-        2:
-          u32: v
-          usize: v
-      _return:
-        u8: v
-      body:
-        '42': v
-
-  sequence = ExampleBlock.makeSequenceDF sequence
+  sequence = data.rustFn
   fakeEditor = {}
 
   {previous, next} = TraversalDirection
   {parent, child, nextSibling, previousSibling} = Relationship
 
-  blockCache = (index) -> new BlockCache(new ExampleBlock(sequence, index),
-                                         fakeEditor)
-  blockCacheAt = (first) ->
-    args = if _.isString(first) then (a for a in arguments) else first
-    index = _.findIndex sequence, (p) -> _.isEqual(p, args)
-    if index < 0
-      throw Error "invalid block path: #{(a for a in args).join('.')}"
-    blockCache index
-
-  want = "function|_0fn|_1name|_2arguments|1|mut x|2|u32|usize|_return|u8|\
-          body|42"
-  have = (b[b.length-1] for b in sequence when b.length > 0).join('|')
-  if want != have
-    console.log "HAVE - WANT:\n#{have}\n#{want}"
-    throw new Error("unexpected sequence - please adjust expectation and/or
-    sequence. See log for info.")
+  {blockCache, blockCacheAt} = makeBlockCacheBuilders sequence, fakeEditor
 
   beforeEach ->
     initMatchers this
