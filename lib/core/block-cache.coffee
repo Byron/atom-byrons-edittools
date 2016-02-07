@@ -67,6 +67,12 @@ class BlockCache
 
   withCacheFields = (block) ->
     block.$cached = {}
+      # Returns the cached block at the given direction or relation.
+      # use `peek()` if you want to try filling the cache beforehand.
+      # May be undefined if there is no cache yet.
+    block.cached = (directionOrRelation) ->
+      @$cached[directionOrRelation]
+
     block
 
   findBlockOriginAndPickupSibling = (fromBlock, direction, nextBlockDepth) ->

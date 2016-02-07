@@ -73,7 +73,6 @@ describe "BlockCache", ->
         it "should initialize the cache on the cursor", ->
           b = @c1.cursor
           expect(b.$cached).toEqual {}
-          expect(b.$cached).toEqual {}
 
         describe "advance() to #{direction}", ->
           it "advance and returns the cursor", ->
@@ -130,14 +129,14 @@ describe "BlockCache", ->
               b = c[fnName](direction)
               expect(lc.depth()).toBe b.depth()
 
-              expect(lc.$cached[direction]).toBe b
-              directionSibling = lc.$cached[toRelation direction]
+              expect(lc.cached direction).toBe b
+              directionSibling = lc.cached toRelation direction
               expect(directionSibling).toBe b
 
-              expect(b.$cached[oppositeOf direction]).toBe lc
-              oppositeSibling = b.$cached[toRelation oppositeOf direction]
+              expect(b.cached oppositeOf direction).toBe lc
+              oppositeSibling = b.cached toRelation oppositeOf direction
               expect(oppositeSibling).toBe lc
-              expect(b.$cached[direction]).toBeFalsy()
+              expect(b.cached direction).toBeFalsy()
 
             it "can peek siblings separated by multiple traversal steps", ->
               lut =
@@ -151,14 +150,14 @@ describe "BlockCache", ->
 
               b = c[fnName](siblingRelation)
               expect(b.path()).toEqual lut[oppositeOf direction]
-              expect(lc.$cached[siblingRelation]).toBe b
-              expect(b.$cached[otherSiblingRelation]).toBe lc
+              expect(lc.cached siblingRelation).toBe b
+              expect(b.cached otherSiblingRelation).toBe lc
 
             it "peeking siblings past the end of the document yields null", ->
               c = setupCacheAtEndOfDocument(direction)
 
               expect(c[fnName](toRelation direction)).toBe null
-              expect(c.cursor.$cached[toRelation direction]).toBeUndefined()
+              expect(c.cursor.cached toRelation direction).toBeUndefined()
 
             it "returns null if there is no sibling in that direction", ->
               prefix = ['function', '_2arguments']
@@ -176,15 +175,15 @@ describe "BlockCache", ->
               b = c[fnName](direction)
 
               expect(b.depth()).toBe lc.depth() - 1
-              oppositeSibling = b.$cached[toRelation oppositeOf direction]
+              oppositeSibling = b.cached toRelation oppositeOf direction
               expect(oppositeSibling).toBeUndefined()
 
               c.cursor = lc
               nb = c[fnName](oppositeOf direction)
 
               expect(nb.depth()).toBe lc.depth() - 1
-              expect(nb.$cached[toRelation direction]).toBe b
-              expect(b.$cached[toRelation oppositeOf direction]).toBe nb
+              expect(nb.cached toRelation direction).toBe b
+              expect(b.cached toRelation oppositeOf direction).toBe nb
 
             it "should setup direct parent/child relationships", ->
               c = blockCacheAt 'function', '_2arguments', '1'
@@ -196,21 +195,21 @@ describe "BlockCache", ->
                 when next then child
                 when previous then parent
                 else throw new Error("invalid direction: #{direction}")
-              expect(lc.$cached[position]).toBe b
-              expect(b.$cached[oppositeOf position]).toBe lc
-              expect(b.$cached[position]).toBeFalsy()
+              expect(lc.cached position).toBe b
+              expect(b.cached oppositeOf position).toBe lc
+              expect(b.cached position).toBeFalsy()
 
             it "to siblings relation", ->
               c = blockCacheAt 'function', '_1name'
               lc = c.cursor
               siblingRelation = toRelation direction
-              expect(lc.$cached[siblingRelation]).toBeUndefined()
+              expect(lc.cached siblingRelation).toBeUndefined()
 
               b = c[fnName](siblingRelation)
 
-              expect(lc.$cached[siblingRelation].depth()).toBe lc.depth()
+              expect(lc.cached(siblingRelation).depth()).toBe lc.depth()
               expect(b.depth()).toBe lc.depth()
-              expect(b.$cached[oppositeOf siblingRelation]).toBe lc
+              expect(b.cached oppositeOf siblingRelation).toBe lc
 
         )(fnName, direction)
 
@@ -231,22 +230,22 @@ describe "BlockCache", ->
             c = blockCacheAt 'function', '_2arguments', '2', 'usize'
             lc = c.cursor
 
-            expect(lc.$cached[previous]).toBeUndefined()
+            expect(lc.cached previous).toBeUndefined()
 
             b = c[fnName](next)
 
             expect(lc.depth() - b.depth()).toBe 2
             expect(b.path()).toEqual ['function', '_return']
 
-            expect(b.$cached[nextSibling]).toBeUndefined()
-            expect(b.$cached[previousSibling].path()).toEqual ['function',
+            expect(b.cached nextSibling).toBeUndefined()
+            expect(b.cached(previousSibling).path()).toEqual ['function',
                                                                 '_2arguments']
 
             expect(b).toBeNextOf lc
-            expect(lc.$cached[previous]).not.toBeUndefined()
+            expect(lc.cached previous).not.toBeUndefined()
             expect(lc).toBePreviousOf b
 
-            p = b.$cached[parent]
+            p = b.cached parent
             expect(p.depth()).toBe b.depth() - 1
             expect(p.path()).toEqual ['function']
             expect(b).toBeChildOf(p)
@@ -255,7 +254,7 @@ describe "BlockCache", ->
             c = blockCacheAt 'function', '_return'
             lc = c.cursor
 
-            expect(lc.$cached[previous]).toBeUndefined()
+            expect(lc.cached previous).toBeUndefined()
 
             b = c[fnName](previous)
 
@@ -263,15 +262,15 @@ describe "BlockCache", ->
             expect(lc.depth() - b.depth()).toBe - 2
             expect(b.path()).toEqual parentPath.concat ['usize']
 
-            expect(b.$cached[nextSibling]).toBeUndefined()
+            expect(b.cached nextSibling).toBeUndefined()
             siblingPath = parentPath.concat ['u32']
-            expect(b.$cached[previousSibling].path()).toEqual siblingPath
+            expect(b.cached(previousSibling).path()).toEqual siblingPath
 
             expect(b).toBePreviousOf lc
-            expect(lc.$cached[next]).toBeUndefined()
+            expect(lc.cached next).toBeUndefined()
             expect(lc).toBeNextOf b
 
-            expect(b.$cached[parent].path()).toEqual parentPath
+            expect(b.cached(parent).path()).toEqual parentPath
 
           it "should find parents", ->
             c = blockCacheAt 'function', '_0fn'
@@ -279,7 +278,7 @@ describe "BlockCache", ->
             b = c[fnName](parent)
 
             expect(b.path()).toEqual ['function']
-            expect(b.$cached[child]).toBe lc
+            expect(b.cached child).toBe lc
             expect(b).toBeParentOf lc
 
           it "should return null parent at the root of the document", ->
@@ -288,8 +287,8 @@ describe "BlockCache", ->
             b = c[fnName](parent)
 
             expect(b).toBe null
-            expect(lc.$cached[parent]).toBeUndefined()
-            expect(lc.$cached[child]).toBeUndefined()
+            expect(lc.cached parent).toBeUndefined()
+            expect(lc.cached child).toBeUndefined()
 
           it "should obtain children", ->
             c = blockCacheAt ['function']
@@ -297,9 +296,9 @@ describe "BlockCache", ->
             b = c[fnName](child)
 
             expect(lc).toBeParentOf b
-            expect(b.$cached[child]).toBeUndefined()
-            expect(lc.$cached[child]).toBe b
-            expect(lc.$cached[parent]).toBeUndefined()
+            expect(b.cached child).toBeUndefined()
+            expect(lc.cached child).toBe b
+            expect(lc.cached parent).toBeUndefined()
 
           it "should return null child at the end of the document", ->
             c = setupCacheAtEndOfDocument(atTheVeryEnd)
@@ -307,7 +306,7 @@ describe "BlockCache", ->
             b = c[fnName](child)
 
             expect(b).toBe null
-            expect(lc.$cached[child]).toBeUndefined()
+            expect(lc.cached child).toBeUndefined()
 
           it "should return null if there is no child", ->
             c = blockCacheAt ['function', '_return', 'u8']
@@ -315,5 +314,5 @@ describe "BlockCache", ->
             b = c[fnName](child)
 
             expect(b).toBe null
-            expect(lc.$cached[child]).toBeUndefined()
+            expect(lc.cached child).toBeUndefined()
       )(fnName)
