@@ -21,6 +21,8 @@ I just starting looking into solving this problem, there is no functionality jus
  - No feature exists without a test.
 * **Multi-Cursor Support**
  - could easily be implemented with single-cursor solution, adding each selection to the existing one.
+* **Multiple gramars per file**
+ - Especially markdown makes it easy to embed other file formats. We deal with it and treat it as embedded document.
 
 # Inspired By
 
