@@ -62,11 +62,11 @@ class BlockCache
     block
 
   peekFrom = (fromBlock, directionOrRelation) ->
-    return next if next = fromBlock.$$cached[directionOrRelation]
+    return next if next = fromBlock.$cached[directionOrRelation]
     setupNextCachedBlockAt fromBlock, directionOrRelation
 
   withCacheFields = (block) ->
-    block.$$cached = {}
+    block.$cached = {}
     block
 
   findBlockOriginAndPickupSibling = (fromBlock, direction, nextBlockDepth) ->
@@ -125,8 +125,8 @@ class BlockCache
     return nextBlock unless nextBlock?
     withCacheFields nextBlock
 
-    fromBlock.$$cached[direction] = nextBlock
-    nextBlock.$$cached[oppositeOf[direction]] = fromBlock
+    fromBlock.$cached[direction] = nextBlock
+    nextBlock.$cached[oppositeOf[direction]] = fromBlock
 
     oppositeDirection = oppositeOf[direction]
     sibling = null
@@ -152,18 +152,18 @@ class BlockCache
     if verticalOffset != 0 and not sibling?
       siblingDepth = nextBlock.depth()
       inOppositeDirection =
-        (b) -> b.$$cached[oppositeDirection]
+        (b) -> b.$cached[oppositeDirection]
       andTakeFirstSibling = (b) -> b.depth() == siblingDepth
       sibling = walk nextBlock, inOppositeDirection, andTakeFirstSibling
 
-    if sibling? and not nextBlock.$$cached[toRelation[oppositeDirection]]?
+    if sibling? and not nextBlock.$cached[toRelation[oppositeDirection]]?
       unless sibling.depth() == nextBlock.depth()
         throw new Error 'invalid siblings detected'
-      nextBlock.$$cached[toRelation[oppositeDirection]] = sibling
-      sibling.$$cached[toRelation[direction]] = nextBlock
+      nextBlock.$cached[toRelation[oppositeDirection]] = sibling
+      sibling.$cached[toRelation[direction]] = nextBlock
 
-    nextBlock.$$cached[oppositeOf[relation]] = origin
-    origin.$$cached[relation] = nextBlock
+    nextBlock.$cached[oppositeOf[relation]] = origin
+    origin.$cached[relation] = nextBlock
 
   constructor: (firstBlock) ->
     @cursor = withCacheFields firstBlock

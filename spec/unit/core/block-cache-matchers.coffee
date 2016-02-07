@@ -14,7 +14,7 @@ makeRelationshipMatcher = (relation) ->
       when !this.actual
         message = "actual block was '#{@actual}'"
       else
-        pass = expected.$$cached[relation] == @actual
+        pass = expected.$cached[relation] == @actual
         if !pass
           message = "expected '#{piped @actual.path()}' to be #{relation} of
                            '#{piped expected.path()}'"
