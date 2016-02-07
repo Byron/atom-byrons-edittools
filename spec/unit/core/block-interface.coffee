@@ -14,6 +14,7 @@ describe "BlockInterface", ->
     c: v
 
   sequence = ExampleBlock.makeSequenceDF sequence
+  fakeEditor = {}
   {previous, next} = TraversalDirection
 
   beforeEach ->
@@ -36,18 +37,18 @@ describe "BlockInterface", ->
   describe "BlockInterface", ->
     describe 'at()', ->
       it 'should return null if it reached the previous document border', ->
-        expect(@b0.at previous).toBe null
+        expect(@b0.at previous, fakeEditor).toBe null
 
       it 'should return null if it reaches the next document border', ->
-        expect(@blast.at next).toBe null
+        expect(@blast.at next, fakeEditor).toBe null
 
       it 'should return the next block within the document', ->
-        bnext = @b0.at next
+        bnext = @b0.at next, fakeEditor
         expect(bnext.path()).toEqual ['a']
         expect(bnext.depth()).toBe 1
 
       it 'should return the previous block within the document', ->
-        bprev = @blast.at previous
+        bprev = @blast.at previous, fakeEditor
         expect(bprev.path()).toEqual ['b', 'b', 'a']
         expect(bprev.depth()).toBe 3
 

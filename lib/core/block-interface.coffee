@@ -16,7 +16,10 @@ class BlockInterface
   # block exists. The only reason to return null is if there is no block
   # to the previous or next, such as if you are at the beginning of the document
   # (*no block to the previous*), or at the end (*no block to the next*).
-  at: (direction) -> subclass_implementation_needed()
+  # The editor is given for the purpose of finding the next block.
+  # You should not store it or pass it on to the block you return, but hand in
+  # enough information to allow it to get going, like plain editor coordinates.
+  at: (direction, editor) -> subclass_implementation_needed()
 
   # Returns the depth of the Block within the tree.
   # It is relative, but has to be consistent.

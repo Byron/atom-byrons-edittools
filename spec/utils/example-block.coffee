@@ -6,7 +6,8 @@
 # block where traversal order is depth first
 class ExampleBlock extends BlockInterface
   constructor: (@sequence, @index) ->
-  at: (direction) ->
+  at: (direction, editor) ->
+    throw new Error "need editor" unless editor?
     nextIndex = switch direction
       when previous then @index - 1
       when next then @index + 1

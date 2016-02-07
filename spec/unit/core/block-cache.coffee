@@ -25,11 +25,13 @@ describe "BlockCache", ->
         '42': v
 
   sequence = ExampleBlock.makeSequenceDF sequence
+  fakeEditor = {}
 
   {previous, next} = TraversalDirection
   {parent, child, nextSibling, previousSibling} = Relationship
 
-  blockCache = (index) -> new BlockCache(new ExampleBlock(sequence, index))
+  blockCache = (index) -> new BlockCache(new ExampleBlock(sequence, index),
+                                         fakeEditor)
   blockCacheAt = (first) ->
     args = if _.isString(first) then (a for a in arguments) else first
     index = _.findIndex sequence, (p) -> _.isEqual(p, args)

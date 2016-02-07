@@ -61,9 +61,9 @@ class BlockCache
     stop = visitor block while not stop && block = next(block)
     block
 
-  peekFrom = (fromBlock, directionOrRelation) ->
+  peekFrom = (fromBlock, directionOrRelation, editor) ->
     return next if next = fromBlock.$cached[directionOrRelation]
-    setupNextCachedBlockAt fromBlock, directionOrRelation
+    setupNextCachedBlockAt fromBlock, directionOrRelation, editor
 
   withCacheFields = (block) ->
     block.$cached = {}
@@ -75,25 +75,26 @@ class BlockCache
 
     block
 
-  findBlockOriginAndPickupSibling = (fromBlock, direction, nextBlockDepth) ->
-    siblingParentDepth = nextBlockDepth - 1
-    relation = child
-    sibling = null
-    toPrevious = previous
+  findBlockOriginAndPickupSibling =
+    (fromBlock, direction, nextBlockDepth, editor) ->
+      siblingParentDepth = nextBlockDepth - 1
+      relation = child
+      sibling = null
+      toPrevious = previous
 
-    towardsPreviousBlocks = (b) -> peekFrom b, toPrevious
-    andDoParentSearch = if direction != toPrevious
-      andFindViableParentKeepingSibling = (b) ->
-        depth = b.depth()
-        sibling = b if !sibling && depth == nextBlockDepth
-        depth == siblingParentDepth
-    else
-      andFindViableParent = (b) -> b.depth() == siblingParentDepth
+      towardsPreviousBlocks = (b) -> peekFrom b, toPrevious, editor
+      andDoParentSearch = if direction != toPrevious
+        andFindViableParentKeepingSibling = (b) ->
+          depth = b.depth()
+          sibling = b if !sibling && depth == nextBlockDepth
+          depth == siblingParentDepth
+      else
+        andFindViableParent = (b) -> b.depth() == siblingParentDepth
 
-    origin = walk fromBlock, towardsPreviousBlocks, andDoParentSearch
-    {origin, sibling, relation}
+      origin = walk fromBlock, towardsPreviousBlocks, andDoParentSearch
+      {origin, sibling, relation}
 
-  setupNextCachedBlockAt = (fromBlock, directionOrRelation) ->
+  setupNextCachedBlockAt = (fromBlock, directionOrRelation, editor) ->
     (if directionOrRelation of TraversalDirection
       setupNextCachedBlockAtDirection
     else if directionOrRelation of Relationship
@@ -101,12 +102,12 @@ class BlockCache
     else
       -> throw new Error "unknown case encountered
                           - fix me: #{directionOrRelation}"
-    )(fromBlock, directionOrRelation)
+    )(fromBlock, directionOrRelation, editor)
 
-  setupNextCachedBlockAtRelation = (fromBlock, relation) ->
+  setupNextCachedBlockAtRelation = (fromBlock, relation, editor) ->
     direction = toDirection[relation]
     blockDepth = fromBlock.depth()
-    andPeek = (b) -> peekFrom b, direction
+    andPeek = (b) -> peekFrom b, direction, editor
     {isGoodCandidate, butAbortIfNeeded} = switch relation
       when nextSibling, previousSibling
         isGoodCandidate: (nb) -> nb.depth() == blockDepth
@@ -126,8 +127,8 @@ class BlockCache
       candidate
     else null
 
-  setupNextCachedBlockAtDirection = (fromBlock, direction) ->
-    nextBlock = fromBlock.at direction
+  setupNextCachedBlockAtDirection = (fromBlock, direction, editor) ->
+    nextBlock = fromBlock.at direction, editor
     return nextBlock unless nextBlock?
     withCacheFields nextBlock
 
@@ -147,7 +148,8 @@ class BlockCache
         relation = if verticalOffset > 0 then child else parent
       else
         {origin, sibling, relation} =
-        findBlockOriginAndPickupSibling fromBlock, direction, nextBlock.depth()
+        findBlockOriginAndPickupSibling fromBlock, direction, nextBlock.depth(),
+                                        editor
 
     unless relation?
       throw new Error "forgot to define relation between blocks"
@@ -171,8 +173,9 @@ class BlockCache
     nextBlock.$cached[oppositeOf[relation]] = origin
     origin.$cached[relation] = nextBlock
 
-  constructor: (firstBlock) ->
+  constructor: (firstBlock, @editor) ->
     @cursor = withCacheFields firstBlock
+    throw new Error "need editor to be set" unless editor?
 
   # Advance the cache's cursor to the given block direction or relation and
   # returns changed cursor or null if the document ended. In the latter case,
@@ -186,7 +189,7 @@ class BlockCache
   peek: (directionOrRelation) ->
     unless directionOrRelation of knownDirectionsAndRelations
       throw new Error "invalid direction: #{directionOrRelation}"
-    peekFrom @cursor, directionOrRelation
+    peekFrom @cursor, directionOrRelation, @editor
 
 module.exports = {BlockCache, Relationship}
 module.exports.oppositeOf = publicOppositeOf
