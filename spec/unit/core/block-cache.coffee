@@ -6,7 +6,6 @@ initMatchers = require './block-cache-matchers'
 data = require '../../fixtures/data'
 {makeBlockCacheBuilders} = require '../../utils/base'
 
-_ = require 'lodash'
 toRelation = directionToRelation
 
 describe "BlockCache", ->
