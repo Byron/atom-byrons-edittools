@@ -4,8 +4,10 @@ ExampleBlock = require './example-block'
 makeBlockCacheBuilders = (sequence, editor) ->
   blockCache = (index) -> new BlockCache(new ExampleBlock(sequence, index),
                                          editor)
-  blockCacheAt = (first) ->
-    args = if _.isString(first) then (a for a in arguments) else first
+  blockCacheAt = (possiblyArray) ->
+    args = if _.isString(possiblyArray) then (a for a in arguments)
+    else possiblyArray
+
     index = _.findIndex sequence, (p) -> _.isEqual(p, args)
     if index < 0
       throw Error "invalid block path: #{(a for a in args).join('.')}"
