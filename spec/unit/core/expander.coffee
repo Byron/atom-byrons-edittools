@@ -41,3 +41,30 @@ describe "Expander", ->
 
     it "should return null if it cannot grow inward anymore", ->
       expect(@e.expand inward).toBe null
+
+  describe "expansion blocked by hierarchy", ->
+
+    beforeEach ->
+      @origin = ['function', '_2arguments', '2']
+      @e = expanderAt @origin
+
+    it "should only grow top if bottom is blocked", ->
+      expect(@e.cursor()[top].path()).toEqual @origin
+      r = @e.expand outward
+      expect(r[top].path()).toEqual ['function', '_2arguments', '1']
+      expect(r[bottom].path()).toEqual @origin
+
+    it "should grow to the parent if all siblings are taken", ->
+      @e.expand outward
+      r = @e.expand outward
+
+      expect(r[top]).toEqual r[bottom]
+      expect(r[top].path()).toEqual ['function', '_2arguments']
+
+    it "should be able to shrink back to were it came from", ->
+      r0 = @e.cursor()
+      r1 = @e.expand outward
+      @e.expand outward
+
+      expect(@e.expand inward).toBe r1
+      expect(@e.expand inward).toEqual r0

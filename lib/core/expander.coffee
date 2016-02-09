@@ -41,12 +41,12 @@ class Expander
         newTop = peekAt @cache, @top, previousSibling
         newBottom = peekAt @cache, @bottom, nextSibling
 
-        @top =
-          if newTop? then newTop
-          else tbd()
-        @bottom =
-          if newBottom? then newBottom
-          else tbd()
+        @top = newTop if newTop?
+        @bottom = newBottom if newBottom?
+
+        if @top != newTop and @bottom != newBottom and
+          (parentBlock = peekAt @cache, @top, parent)?
+            @top = @bottom = parentBlock
 
         return @history[@hid++] = @cursor()
       when inward
