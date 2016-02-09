@@ -21,7 +21,7 @@ class Expander
     cache.peek relation
 
   constructor: (@cache) ->
-    @top = @bottom = @origin = @cache.cursor
+    @top = @bottom = @cache.cursor
     @history = [@cursor()]
     @hid = 1
 

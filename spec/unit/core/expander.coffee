@@ -16,20 +16,19 @@ describe "Expander", ->
 
   it "should keep its bounds at the cache cursor on init", ->
     e = expanderAt 'function', '_1name'
-    expect(e.origin).toBe e.top
-    expect(e.origin).toBe e.bottom
-    expect(e.origin).toBe e.cache.cursor
+    origin = e.cache.cursor
+    expect(origin).toBe e.top
+    expect(origin).toBe e.bottom
+    expect(origin).toBe e.cache.cursor
 
   describe "direct siblings", ->
     beforeEach ->
       @e = expanderAt 'function', '_1name'
 
     it "should grow outward equally towards top and bottom", ->
-      cursor = @e.cache.cursor
       r = @e.expand outward
       expect(r[top].path()).toEqual ['function', '_0fn']
       expect(r[bottom].path()).toEqual ['function', '_2arguments']
-      expect(@e.origin).toBe cursor
 
     it "should grow inward to the same location, cache results", ->
       r0 = @e.cursor()
@@ -68,3 +67,18 @@ describe "Expander", ->
 
       expect(@e.expand inward).toBe r1
       expect(@e.expand inward).toEqual r0
+
+  describe "expansion blocked by document boundary", ->
+    it "should grow top if bottom is blocked", ->
+      e = expanderAt 'function', 'body'
+      previousBottom = e.cursor()[bottom]
+      r = e.expand outward
+
+      expect(r[bottom]).toBe previousBottom
+      expect(r[top].path()).toEqual ['function', '_return']
+
+    xit "should stop to grop if it is blocked at top", ->
+      e = expanderAt 'function'
+      c = e.cursor()
+
+      expect(e.expand outward).toBe c
