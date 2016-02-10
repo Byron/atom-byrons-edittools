@@ -17,8 +17,8 @@ describe "Expander", ->
   it "should keep its bounds at the cache cursor on init", ->
     e = expanderAt 'function', '_1name'
     origin = e.cache.cursor
-    expect(origin).toBe e.top
-    expect(origin).toBe e.bottom
+    expect(origin).toBe e.$top
+    expect(origin).toBe e.$bottom
     expect(origin).toBe e.cache.cursor
 
   describe "direct siblings", ->

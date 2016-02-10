@@ -21,7 +21,7 @@ class Expander
     cache.peek relation
 
   constructor: (@cache) ->
-    @top = @bottom = @cache.cursor
+    @$top = @$bottom = @cache.cursor
     @history = [@cursor()]
     @hid = 1
 
@@ -38,15 +38,15 @@ class Expander
       when outward
         return @history[@hid++] if @hid < @history.length
 
-        newTop = peekAt @cache, @top, previousSibling
-        newBottom = peekAt @cache, @bottom, nextSibling
+        newTop = peekAt @cache, @$top, previousSibling
+        newBottom = peekAt @cache, @$bottom, nextSibling
 
-        @top = newTop if newTop?
-        @bottom = newBottom if newBottom?
+        @$top = newTop if newTop?
+        @$bottom = newBottom if newBottom?
 
-        if @top != newTop and @bottom != newBottom and
-          (parentBlock = peekAt @cache, @top, parent)?
-            @top = @bottom = parentBlock
+        if @$top != newTop and @$bottom != newBottom and
+          (parentBlock = peekAt @cache, @$top, parent)?
+            @$top = @$bottom = parentBlock
 
         return @history[@hid++] = @cursor()
       when inward
@@ -59,7 +59,7 @@ class Expander
 
   # Returns the current bound with blocks for each direction. Result is
   # similar to what you can expect from `expand()`
-  cursor: () -> {@top, @bottom}
+  cursor: () -> {top: @$top, bottom: @$bottom}
 
 
 module.exports = {Expander, ExpansionDirection, BoundLocation}
