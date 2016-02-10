@@ -1,7 +1,7 @@
 data = require '../../fixtures/data'
 {makeBlockCacheBuilders} = require '../../utils/base'
 {Expander, ExpansionDirection, BoundLocation} =
-                                            require '../../../lib/core/expander'
+  require '../../../lib/core/expander'
 
 
 describe "Expander", ->
@@ -77,8 +77,8 @@ describe "Expander", ->
       expect(r[bottom]).toBe previousBottom
       expect(r[top].path()).toEqual ['function', '_return']
 
-    xit "should stop to grop if it is blocked at top", ->
-      e = expanderAt 'function'
+    it "should stop to grop if it is blocked at top", ->
+      e = expanderAt []
       c = e.cursor()
 
-      expect(e.expand outward).toBe c
+      expect(e.expand outward).toEqual c

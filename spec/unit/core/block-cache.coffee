@@ -287,4 +287,10 @@ describe "BlockCache", ->
 
             expect(b).toBe null
             expect(lc.cached child).toBeUndefined()
+
+          it "should get no siblings when hitting the document boundary", ->
+            c = blockCacheAt 'function'
+
+            expect(c[fnName](nextSibling)).toBe null
+            expect(c[fnName](previousSibling)).toBe null
       )(fnName)
