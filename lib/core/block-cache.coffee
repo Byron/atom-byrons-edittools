@@ -55,6 +55,8 @@ publicDirectionToRelation = (direction) ->
 # The cache behaves much like a lexer, such that it has a cursor pointing to a
 # current block, and allows to peek in a direction without adjusting the cursor.
 class BlockCache
+  @FOREIGN_BLOCK_ERROR: new Error "foreign block cannot be used"
+
   stopWalk = true
   neverStop = false
   walk = (block, next, visitor) ->
@@ -149,7 +151,7 @@ class BlockCache
       else
         {origin, sibling, relation} =
         findBlockOriginAndPickupSibling fromBlock, direction, nextBlock.depth(),
-                                        editor
+          editor
 
     unless relation?
       throw new Error "forgot to define relation between blocks"
@@ -174,22 +176,38 @@ class BlockCache
     origin.$cached[relation] = nextBlock
 
   constructor: (firstBlock, @editor) ->
-    @cursor = withCacheFields firstBlock
+    @$cursor = withCacheFields firstBlock
     throw new Error "need editor to be set" unless editor?
+
+  # Returns our cursor
+  cursor: () -> @$cursor
+
+  # Sets the cursor the given block.
+  # Throws if the block is not owned by this cache
+  # Returns this instance
+  setCursor: (cursor) ->
+    if cursor != @$cursor
+      foundCursor = (b) -> b == cursor
+      isOurBlock = _.some TraversalDirection, (direction) =>
+        walk @$cursor, ((b) -> b.$cached[direction]), foundCursor
+
+      throw BlockCache.FOREIGN_BLOCK_ERROR unless isOurBlock
+    @$cursor = cursor
+    this
 
   # Advance the cache's cursor to the given block direction or relation and
   # returns changed cursor or null if the document ended. In the latter case,
   # the cursor did not change
   advance: (directionOrRelation) ->
     if next = @peek directionOrRelation
-      return @cursor = next
+      return @$cursor = next
     null
 
   # Peek towards the given direction or relation, without advancing it
   peek: (directionOrRelation) ->
     unless directionOrRelation of knownDirectionsAndRelations
       throw new Error "invalid direction: #{directionOrRelation}"
-    peekFrom @cursor, directionOrRelation, @editor
+    peekFrom @$cursor, directionOrRelation, @editor
 
 module.exports = {BlockCache, Relationship}
 module.exports.oppositeOf = publicOppositeOf

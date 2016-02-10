@@ -43,33 +43,33 @@ describe "BlockCache", ->
           @c1 = blockCacheAt 'function', '_0fn'
 
         it "should initialize the cache on the cursor", ->
-          b = @c1.cursor
+          b = @c1.cursor()
           expect(b.$cached).toEqual {}
 
         describe "advance() to #{direction}", ->
           it "advance and returns the cursor", ->
-            lastCursor = @c1.cursor
-            expect(@c1.advance direction).toBe @c1.cursor
-            expect(@c1.cursor).not.toBe lastCursor
+            lastCursor = @c1.cursor()
+            expect(@c1.advance direction).toBe @c1.cursor()
+            expect(@c1.cursor()).not.toBe lastCursor
 
           it "returns null if it reaches end of document and doesn't advance
               cursor", ->
-            lastCursor = @cd.cursor
+            lastCursor = @cd.cursor()
             expect(@cd.advance direction).toBe null
-            expect(@cd.cursor).toBe lastCursor
+            expect(@cd.cursor()).toBe lastCursor
 
           it "returns siblings, parents and children from cache", ->
             for path in [['function', '_0fn'], ['function', '_1name']]
               c = blockCacheAt path
-              lc = c.cursor
+              lc = c.cursor()
               c.advance direction
               expect(c.advance oppositeOf direction).toBe lc
 
         describe "peek() to #{direction}", ->
           it "must not change cursor when peeking", ->
-            lastCursor = @c1.cursor
+            lastCursor = @c1.cursor()
             expect(@c1.peek direction).toBeTruthy()
-            expect(@c1.cursor).toBe lastCursor
+            expect(@c1.cursor()).toBe lastCursor
 
           it "should return the same result if peeking multiple times", ->
             expect(@c1.peek direction).toBe @c1.peek direction
@@ -78,7 +78,7 @@ describe "BlockCache", ->
             expect(@cd.peek direction).toBe null
 
           it "peek results are consistent in the face of advance", ->
-            lastCursor = @cd.cursor
+            lastCursor = @cd.cursor()
             peeked = @cd.peek oppositeOf direction
             expect(peeked).not.toEqual @cd.peek direction
             expect(nextCursor = @cd.advance oppositeOf direction).toBe peeked
@@ -97,7 +97,7 @@ describe "BlockCache", ->
           describe "#{fnName}() to #{direction}", ->
             it "should setup direct siblings", ->
               c = blockCacheAt 'function', '_1name'
-              lc = c.cursor
+              lc = c.cursor()
               b = c[fnName](direction)
               expect(lc.depth()).toBe b.depth()
 
@@ -116,7 +116,7 @@ describe "BlockCache", ->
                 previous: ['function', '_return']
 
               c = blockCacheAt lut[direction]
-              lc = c.cursor
+              lc = c.cursor()
               siblingRelation = toRelation direction
               otherSiblingRelation = oppositeOf siblingRelation
 
@@ -129,7 +129,7 @@ describe "BlockCache", ->
               c = setupCacheAtEndOfDocument(direction)
 
               expect(c[fnName](toRelation direction)).toBe null
-              expect(c.cursor.cached toRelation direction).toBeUndefined()
+              expect(c.cursor().cached toRelation direction).toBeUndefined()
 
             it "returns null if there is no sibling in that direction", ->
               prefix = ['function', '_2arguments']
@@ -143,14 +143,14 @@ describe "BlockCache", ->
 
             it "should setup siblings when they become apparent", ->
               c = blockCacheAt 'function', '_2arguments', '1', 'mut x'
-              lc = c.cursor
+              lc = c.cursor()
               b = c[fnName](direction)
 
               expect(b.depth()).toBe lc.depth() - 1
               oppositeSibling = b.cached toRelation oppositeOf direction
               expect(oppositeSibling).toBeUndefined()
 
-              c.cursor = lc
+              c.setCursor(lc)
               nb = c[fnName](oppositeOf direction)
 
               expect(nb.depth()).toBe lc.depth() - 1
@@ -159,7 +159,7 @@ describe "BlockCache", ->
 
             it "should setup direct parent/child relationships", ->
               c = blockCacheAt 'function', '_2arguments', '1'
-              lc = c.cursor
+              lc = c.cursor()
               b = c[fnName](direction)
               expect(Math.abs(lc.depth() - b.depth())).toBe 1
 
@@ -173,7 +173,7 @@ describe "BlockCache", ->
 
             it "to siblings relation", ->
               c = blockCacheAt 'function', '_1name'
-              lc = c.cursor
+              lc = c.cursor()
               siblingRelation = toRelation direction
               expect(lc.cached siblingRelation).toBeUndefined()
 
@@ -200,7 +200,7 @@ describe "BlockCache", ->
 
           it "should setup indirect parent relationships", ->
             c = blockCacheAt 'function', '_2arguments', '2', 'usize'
-            lc = c.cursor
+            lc = c.cursor()
 
             expect(lc.cached previous).toBeUndefined()
 
@@ -224,7 +224,7 @@ describe "BlockCache", ->
 
           it "should setup indirect child relationships", ->
             c = blockCacheAt 'function', '_return'
-            lc = c.cursor
+            lc = c.cursor()
 
             expect(lc.cached previous).toBeUndefined()
 
@@ -246,7 +246,7 @@ describe "BlockCache", ->
 
           it "should find parents", ->
             c = blockCacheAt 'function', '_0fn'
-            lc = c.cursor
+            lc = c.cursor()
             b = c[fnName](parent)
 
             expect(b.path()).toEqual ['function']
@@ -255,7 +255,7 @@ describe "BlockCache", ->
 
           it "should return null parent at the root of the document", ->
             c = blockCacheAt []
-            lc = c.cursor
+            lc = c.cursor()
             b = c[fnName](parent)
 
             expect(b).toBe null
@@ -264,7 +264,7 @@ describe "BlockCache", ->
 
           it "should obtain children", ->
             c = blockCacheAt ['function']
-            lc = c.cursor
+            lc = c.cursor()
             b = c[fnName](child)
 
             expect(lc).toBeParentOf b
@@ -274,7 +274,7 @@ describe "BlockCache", ->
 
           it "should return null child at the end of the document", ->
             c = setupCacheAtEndOfDocument(atTheVeryEnd)
-            lc = c.cursor
+            lc = c.cursor()
             b = c[fnName](child)
 
             expect(b).toBe null
@@ -282,7 +282,7 @@ describe "BlockCache", ->
 
           it "should return null if there is no child", ->
             c = blockCacheAt ['function', '_return', 'u8']
-            lc = c.cursor
+            lc = c.cursor()
             b = c[fnName](child)
 
             expect(b).toBe null
@@ -294,3 +294,26 @@ describe "BlockCache", ->
             expect(c[fnName](nextSibling)).toBe null
             expect(c[fnName](previousSibling)).toBe null
       )(fnName)
+
+  describe "setCursor()", ->
+    beforeEach ->
+      @c = blockCacheAt 'function'
+
+    it "can set cursor to the same location", ->
+      expect(@c.setCursor @c.cursor()).toBe @c
+
+    it "can set cursor to block owned by cache", ->
+      b = @c.peek(child)
+
+      expect(@c.setCursor(b)).toBe @c
+      expect(@c.cursor()).toBe b
+
+    it "cannot set cursor to an arbitrary block", ->
+      b = new ExampleBlock(sequence, 0)
+
+      expect(() => @c.setCursor(b)).toThrow BlockCache.FOREIGN_BLOCK_ERROR
+
+    it "cannot set cursor to block of other cache", ->
+      b = blockCacheAt('function').cursor()
+
+      expect(() => @c.setCursor(b)).toThrow BlockCache.FOREIGN_BLOCK_ERROR

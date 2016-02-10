@@ -17,11 +17,11 @@ class Expander
   tbd = () -> throw new Error "tbd"
 
   peekAt = (cache, cursor, relation) ->
-    cache.cursor = cursor
+    cache.setCursor(cursor)
     cache.peek relation
 
   constructor: (@cache) ->
-    @$top = @$bottom = @cache.cursor
+    @$top = @$bottom = @cache.cursor()
     @history = [@cursor()]
     @hid = 1
 
