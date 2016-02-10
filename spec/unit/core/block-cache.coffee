@@ -302,18 +302,23 @@ describe "BlockCache", ->
     it "can set cursor to the same location", ->
       expect(@c.setCursor @c.cursor()).toBe @c
 
-    it "can set cursor to block owned by cache", ->
+    it "can set cursor to block owned by same cache", ->
       b = @c.peek(child)
 
       expect(@c.setCursor(b)).toBe @c
       expect(@c.cursor()).toBe b
 
-    it "cannot set cursor to an arbitrary block", ->
+    it "can set cursor to an arbitrary block", ->
       b = new ExampleBlock(sequence, 0)
+      expect(b.$cached).toBeUndefined()
 
-      expect(() => @c.setCursor(b)).toThrow BlockCache.FOREIGN_BLOCK_ERROR
+      @c.setCursor b
+      expect(b.$cached).not.toBeUndefined()
 
-    it "cannot set cursor to block of other cache", ->
+    it "can set cursor to block of other cache", ->
       b = blockCacheAt('function').cursor()
+      pc = b.$cached
+      expect(pc).not.toBeUndefined()
 
-      expect(() => @c.setCursor(b)).toThrow BlockCache.FOREIGN_BLOCK_ERROR
+      @c.setCursor b
+      expect(b.$cached).toBe pc

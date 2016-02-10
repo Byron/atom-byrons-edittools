@@ -55,8 +55,6 @@ publicDirectionToRelation = (direction) ->
 # The cache behaves much like a lexer, such that it has a cursor pointing to a
 # current block, and allows to peek in a direction without adjusting the cursor.
 class BlockCache
-  @FOREIGN_BLOCK_ERROR: new Error "foreign block cannot be used"
-
   stopWalk = true
   neverStop = false
   walk = (block, next, visitor) ->
@@ -182,16 +180,12 @@ class BlockCache
   # Returns our cursor
   cursor: () -> @$cursor
 
-  # Sets the cursor the given block.
-  # Throws if the block is not owned by this cache
+  # Sets the cursor the given block. If it is not yet owned by a cache,
+  # we will add our data structures to it.
   # Returns this instance
   setCursor: (cursor) ->
-    if cursor != @$cursor
-      foundCursor = (b) -> b == cursor
-      isOurBlock = _.some TraversalDirection, (direction) =>
-        walk @$cursor, ((b) -> b.$cached[direction]), foundCursor
-
-      throw BlockCache.FOREIGN_BLOCK_ERROR unless isOurBlock
+    unless cursor.$cached?
+      withCacheFields cursor
     @$cursor = cursor
     this
 
