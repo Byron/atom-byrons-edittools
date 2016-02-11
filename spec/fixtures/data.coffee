@@ -25,7 +25,7 @@ sequenceCheck =
   for name, structure of data
     data[name] = sequence = ExampleBlock.makeSequenceDF structure
 
-    want = sequenceCheck[name] or "<set sequence check for #{name}"
+    want = sequenceCheck[name] or "<set sequence check for #{name}>"
     have = (b[b.length-1] for b in sequence when b.length > 0).join('|')
     if want != have
       console.log "HAVE - WANT:\n#{have}\n#{want}"
