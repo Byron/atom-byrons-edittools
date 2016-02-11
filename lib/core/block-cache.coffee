@@ -85,11 +85,11 @@ class BlockCache
       towardsPreviousBlocks = (b) -> peekFrom b, toPrevious, editor
       andDoParentSearch = if direction != toPrevious
         andFindViableParentKeepingSibling = (b) ->
-          depth = b.depth()
+          depth = b.depth(editor)
           sibling = b if !sibling && depth == nextBlockDepth
           depth == siblingParentDepth
       else
-        andFindViableParent = (b) -> b.depth() == siblingParentDepth
+        andFindViableParent = (b) -> b.depth(editor) == siblingParentDepth
 
       origin = walk fromBlock, towardsPreviousBlocks, andDoParentSearch
       {origin, sibling, relation}
@@ -106,18 +106,18 @@ class BlockCache
 
   setupNextCachedBlockAtRelation = (fromBlock, relation, editor) ->
     direction = toDirection[relation]
-    blockDepth = fromBlock.depth()
+    blockDepth = fromBlock.depth(editor)
     andPeek = (b) -> peekFrom b, direction, editor
     {isGoodCandidate, butAbortIfNeeded} = switch relation
       when nextSibling, previousSibling
-        isGoodCandidate: (nb) -> nb.depth() == blockDepth
-        butAbortIfNeeded: (c) -> c.depth() <= blockDepth
+        isGoodCandidate: (nb) -> nb.depth(editor) == blockDepth
+        butAbortIfNeeded: (c) -> c.depth(editor) <= blockDepth
       when parent
-        isParent = (b) -> b.depth() == blockDepth - 1
+        isParent = (b) -> b.depth(editor) == blockDepth - 1
         isGoodCandidate: isParent
         butAbortIfNeeded: isParent
       when child
-        isChild = (b) -> b.depth() == blockDepth + 1
+        isChild = (b) -> b.depth(editor) == blockDepth + 1
         isGoodCandidate: isChild
         butAbortIfNeeded: isChild
       else throw new Error "unexpected relation: #{relation}"
@@ -139,7 +139,7 @@ class BlockCache
     sibling = null
     origin = fromBlock
     relation = null
-    verticalOffset = nextBlock.depth() - fromBlock.depth()
+    verticalOffset = nextBlock.depth(editor) - fromBlock.depth(editor)
     switch
       when verticalOffset == 0
         relation = direction
@@ -148,8 +148,9 @@ class BlockCache
         relation = if verticalOffset > 0 then child else parent
       else
         {origin, sibling, relation} =
-        findBlockOriginAndPickupSibling fromBlock, direction, nextBlock.depth(),
-          editor
+        findBlockOriginAndPickupSibling fromBlock, direction,
+                                        nextBlock.depth(editor),
+                                        editor
 
     unless relation?
       throw new Error "forgot to define relation between blocks"
@@ -158,14 +159,14 @@ class BlockCache
                        traversed AST is inconsistent"
 
     if verticalOffset != 0 and not sibling?
-      siblingDepth = nextBlock.depth()
+      siblingDepth = nextBlock.depth(editor)
       inOppositeDirection =
         (b) -> b.$cached[oppositeDirection]
-      andTakeFirstSibling = (b) -> b.depth() == siblingDepth
+      andTakeFirstSibling = (b) -> b.depth(editor) == siblingDepth
       sibling = walk nextBlock, inOppositeDirection, andTakeFirstSibling
 
     if sibling? and not nextBlock.$cached[toRelation[oppositeDirection]]?
-      unless sibling.depth() == nextBlock.depth()
+      unless sibling.depth(editor) == nextBlock.depth(editor)
         throw new Error 'invalid siblings detected'
       nextBlock.$cached[toRelation[oppositeDirection]] = sibling
       sibling.$cached[toRelation[direction]] = nextBlock

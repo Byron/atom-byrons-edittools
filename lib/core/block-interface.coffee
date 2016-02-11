@@ -12,6 +12,11 @@ class BlockInterface
   subclass_implementation_needed = () ->
     throw new Error('to be implemented in subclass')
 
+  # Constructor producing a new instance of the subclass type from a buffer
+  # position, which must be an Atom Point (e.g. struct with row, column fields)
+  @newFromBufferPosition = (position) ->
+    subclass_implementation_needed()
+
   # Returns a new Block object in the given direction, or null if no such
   # block exists. The only reason to return null is if there is no block
   # to the previous or next, such as if you are at the beginning of the document
@@ -31,7 +36,9 @@ class BlockInterface
   # increments/decrements of 1, which effectively guides the caller along the
   # tree. Otherwise it has no way
   # of knowing the actual parent of a block.
-  depth: () -> subclass_implementation_needed()
+  # The editor may be used to obtain this information in case it is not yet
+  # known, and must not be stored.
+  depth: (editor) -> subclass_implementation_needed()
 
 TraversalDirection =
   next: 'next'

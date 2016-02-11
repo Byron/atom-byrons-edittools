@@ -18,7 +18,9 @@ class ExampleBlock extends BlockInterface
     new ExampleBlock @sequence, nextIndex
 
   path: () -> @sequence[@index]
-  depth: () -> @path().length
+  depth: (editor) ->
+    throw new Error "need editor" unless editor?
+    @path().length
 
   @makeSequenceDF: (structure) ->
     sequence = []

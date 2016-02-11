@@ -10,7 +10,7 @@ toRelation = directionToRelation
 
 describe "BlockCache", ->
   sequence = data.rustFn
-  fakeEditor = {}
+  fakeEditor = ed = {}
 
   {previous, next} = TraversalDirection
   {parent, child, nextSibling, previousSibling} = Relationship
@@ -99,7 +99,7 @@ describe "BlockCache", ->
               c = blockCacheAt 'function', '_1name'
               lc = c.cursor()
               b = c[fnName](direction)
-              expect(lc.depth()).toBe b.depth()
+              expect(lc.depth(ed)).toBe b.depth(ed)
 
               expect(lc.cached direction).toBe b
               directionSibling = lc.cached toRelation direction
@@ -146,14 +146,14 @@ describe "BlockCache", ->
               lc = c.cursor()
               b = c[fnName](direction)
 
-              expect(b.depth()).toBe lc.depth() - 1
+              expect(b.depth(ed)).toBe lc.depth(ed) - 1
               oppositeSibling = b.cached toRelation oppositeOf direction
               expect(oppositeSibling).toBeUndefined()
 
               c.setCursor(lc)
               nb = c[fnName](oppositeOf direction)
 
-              expect(nb.depth()).toBe lc.depth() - 1
+              expect(nb.depth(ed)).toBe lc.depth(ed) - 1
               expect(nb.cached toRelation direction).toBe b
               expect(b.cached toRelation oppositeOf direction).toBe nb
 
@@ -161,7 +161,7 @@ describe "BlockCache", ->
               c = blockCacheAt 'function', '_2arguments', '1'
               lc = c.cursor()
               b = c[fnName](direction)
-              expect(Math.abs(lc.depth() - b.depth())).toBe 1
+              expect(Math.abs(lc.depth(ed) - b.depth(ed))).toBe 1
 
               position = switch direction
                 when next then child
@@ -179,8 +179,8 @@ describe "BlockCache", ->
 
               b = c[fnName](siblingRelation)
 
-              expect(lc.cached(siblingRelation).depth()).toBe lc.depth()
-              expect(b.depth()).toBe lc.depth()
+              expect(lc.cached(siblingRelation).depth(ed)).toBe lc.depth(ed)
+              expect(b.depth(ed)).toBe lc.depth(ed)
               expect(b.cached oppositeOf siblingRelation).toBe lc
 
         )(fnName, direction)
@@ -206,7 +206,7 @@ describe "BlockCache", ->
 
             b = c[fnName](next)
 
-            expect(lc.depth() - b.depth()).toBe 2
+            expect(lc.depth(ed) - b.depth(ed)).toBe 2
             expect(b.path()).toEqual ['function', '_return']
 
             expect(b.cached nextSibling).toBeUndefined()
@@ -218,7 +218,7 @@ describe "BlockCache", ->
             expect(lc).toBePreviousOf b
 
             p = b.cached parent
-            expect(p.depth()).toBe b.depth() - 1
+            expect(p.depth(ed)).toBe b.depth(ed) - 1
             expect(p.path()).toEqual ['function']
             expect(b).toBeChildOf(p)
 
@@ -231,7 +231,7 @@ describe "BlockCache", ->
             b = c[fnName](previous)
 
             parentPath = ['function', '_2arguments', '2']
-            expect(lc.depth() - b.depth()).toBe - 2
+            expect(lc.depth(ed) - b.depth(ed)).toBe - 2
             expect(b.path()).toEqual parentPath.concat ['usize']
 
             expect(b.cached nextSibling).toBeUndefined()

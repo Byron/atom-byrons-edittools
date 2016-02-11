@@ -31,8 +31,8 @@ describe "BlockInterface", ->
       expect(@blast.path()).toEqual ['c']
 
     test 'depth()', ->
-      expect(@b0.depth()).toBe 0
-      expect(@blast.depth()).toBe 1
+      expect(@b0.depth(fakeEditor)).toBe 0
+      expect(@blast.depth(fakeEditor)).toBe 1
 
   describe "BlockInterface", ->
     describe 'at()', ->
@@ -45,24 +45,24 @@ describe "BlockInterface", ->
       it 'should return the next block within the document', ->
         bnext = @b0.at next, fakeEditor
         expect(bnext.path()).toEqual ['a']
-        expect(bnext.depth()).toBe 1
+        expect(bnext.depth(fakeEditor)).toBe 1
 
       it 'should return the previous block within the document', ->
         bprev = @blast.at previous, fakeEditor
         expect(bprev.path()).toEqual ['b', 'b', 'a']
-        expect(bprev.depth()).toBe 3
+        expect(bprev.depth(fakeEditor)).toBe 3
 
     describe 'depth()', ->
       block = (index) -> new ExampleBlock sequence, index
 
       assert 'that siblings have similar depth', ->
-        expect(block(1).depth()).toBe block(2).depth()
+        expect(block(1).depth(fakeEditor)).toBe block(2).depth(fakeEditor)
 
       assert 'that direct children increment depth by one', ->
-        expect(block(2).depth()).toBe block(3).depth() - 1
+        expect(block(2).depth(fakeEditor)).toBe block(3).depth(fakeEditor) - 1
 
       assert 'that direct parents decrement depth by one', ->
-        expect(block(5).depth()).toBe block(4).depth() + 1
+        expect(block(5).depth(fakeEditor)).toBe block(4).depth(fakeEditor) + 1
 
 describe "oppositeOf()", ->
   for key, direction of TraversalDirection
