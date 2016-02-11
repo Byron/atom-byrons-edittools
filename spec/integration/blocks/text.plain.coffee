@@ -1,9 +1,12 @@
 path = require 'path'
 fs = require 'fs'
 
-require '../../../lib/blocks/text.plain'
+PlainBlock = require '../../../lib/blocks/text.plain'
 
 describe "text.plain", ->
+  need = it
+  pending = xit
+
   beforeEach ->
     waitsForPromise -> atom.workspace.open('sample.txt')
     runs ->
@@ -11,6 +14,18 @@ describe "text.plain", ->
                                        'buffers', 'text.plain'
       @editor = atom.workspace.getActiveTextEditor()
       @editor.setText data.toString()
+      @editor.setCursorBufferPosition([0, 0])
 
-  it "intermediate: see if we can bring up an editor with text", ->
-    expect(@editor.getText().length).not.toBe 0
+  block = (row, column) -> new PlainBlock({row, column})
+
+  it "can be constructed from buffer position", ->
+    b = PlainBlock.newFromBufferPosition(@editor.getCursors()[0]
+                                                .getBufferPosition())
+    expect(b).toBeDefined()
+
+  pending "empty lines to be paragraphs at depth 0", ->
+    b = block 0, 0
+    expect(b.depth(@editor)).toBe 0
+    expect(b.$cd).toBe 0
+
+  pending "whitespace to be ignored, and thus be similar to empty lines", ->
