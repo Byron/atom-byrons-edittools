@@ -2,6 +2,7 @@ path = require 'path'
 fs = require 'fs'
 
 PlainBlock = require '../../../lib/blocks/text.plain'
+Point = require '../../../lib/core/point'
 
 describe "text.plain", ->
   need = it
@@ -16,7 +17,7 @@ describe "text.plain", ->
       @editor.setText data.toString()
       @editor.setCursorBufferPosition([0, 0])
 
-  block = (row, column) -> new PlainBlock({row, column})
+  block = (row, column) -> new PlainBlock(new Point(row, column))
 
   it "can be constructed from buffer position", ->
     b = PlainBlock.newFromBufferPosition(@editor.getCursors()[0]

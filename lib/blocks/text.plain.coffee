@@ -2,6 +2,7 @@
                                         require '../../lib/core/block-interface'
 {previous, next} = TraversalDirection
 
+
 # block where traversal order is depth first
 class PlainBlock extends BlockInterface
   @newFromBufferPosition = (position) -> new PlainBlock position
@@ -15,7 +16,8 @@ class PlainBlock extends BlockInterface
 
   depth: (editor) ->
     return @cd if @$cd?
-    tbd()
+    # surrounding = editor.getTextInBufferRange(@cp)
+    # return 1 if @cp.column == 0
 
 
 
