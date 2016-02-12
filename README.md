@@ -18,7 +18,7 @@ I just starting looking into solving this problem, there is no functionality jus
 * **runtime-costs don't grow with document size**
  - Its performance is not relative to the documents size, but is only affected by the costs to compute the actual expansion.
 * **TDD**
- - No feature exists without a test.
+ - No feature exists without a tests.
 * **Multi-Cursor Support**
  - could easily be implemented with single-cursor solution, adding each selection to the existing one.
 * **Multiple grammars per file**
