@@ -1,6 +1,7 @@
 {TraversalDirection, Relation, BlockInterface} =
                                         require '../../lib/core/block-interface'
 {previous, next} = TraversalDirection
+{Point} = require 'atom'
 
 
 # block where traversal order is depth first

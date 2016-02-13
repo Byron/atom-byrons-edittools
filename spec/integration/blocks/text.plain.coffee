@@ -2,7 +2,7 @@ path = require 'path'
 fs = require 'fs'
 
 PlainBlock = require '../../../lib/blocks/text.plain'
-Point = require '../../../lib/core/point'
+{Point} = require 'atom'
 
 describe "text.plain", ->
   need = it
