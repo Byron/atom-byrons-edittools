@@ -2,6 +2,7 @@
                                         require '../../lib/core/block-interface'
 {isObject, keys, isArray, clone} = require 'lodash'
 {previous, next} = TraversalDirection
+{Range, Point} = require 'atom'
 
 # block where traversal order is depth first
 class ExampleBlock extends BlockInterface
@@ -21,6 +22,10 @@ class ExampleBlock extends BlockInterface
   depth: (editor) ->
     throw new Error "need editor" unless editor?
     @path().length
+
+  range: (editor) ->
+    throw new Error "need editor" unless editor?
+    new Range()
 
   @makeSequenceDF: (structure) ->
     sequence = []

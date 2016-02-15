@@ -64,6 +64,12 @@ describe "BlockInterface", ->
       assert 'that direct parents decrement depth by one', ->
         expect(block(5).depth(fakeEditor)).toBe block(4).depth(fakeEditor) + 1
 
+    describe 'range()', ->
+      it "should always return a range object", ->
+        r = @b0.range(fakeEditor)
+        expect(r.start).toBeDefined()
+        expect(r.end).toBeDefined()
+
 describe "oppositeOf()", ->
   for key, direction of TraversalDirection
     ((direction) ->

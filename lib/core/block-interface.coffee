@@ -9,13 +9,13 @@
 # lexer,
 # where tokens are blocks.
 class BlockInterface
-  subclass_implementation_needed = () ->
+  toBeImplementedInSubclass = () ->
     throw new Error('to be implemented in subclass')
 
   # Constructor producing a new instance of the subclass type from a buffer
   # position, which must be an Atom Point (e.g. struct with row, column fields)
   @newFromBufferPosition = (position) ->
-    subclass_implementation_needed()
+    toBeImplementedInSubclass()
 
   # Returns a new Block object in the given direction, or null if no such
   # block exists. The only reason to return null is if there is no block
@@ -24,7 +24,7 @@ class BlockInterface
   # The editor is given for the purpose of finding the next block.
   # You should not store it or pass it on to the block you return, but hand in
   # enough information to allow it to get going, like plain editor coordinates.
-  at: (direction, editor) -> subclass_implementation_needed()
+  at: (direction, editor) -> toBeImplementedInSubclass()
 
   # Returns the depth of the Block within the tree.
   # It is relative, but has to be consistent.
@@ -38,7 +38,12 @@ class BlockInterface
   # of knowing the actual parent of a block.
   # The editor may be used to obtain this information in case it is not yet
   # known, and must not be stored.
-  depth: (editor) -> subclass_implementation_needed()
+  depth: (editor) -> toBeImplementedInSubclass()
+
+  # Returns the left and right boundary as `Range` object
+  # Ranges can be used for text-selection
+  # It must always be defined, even if the range has a size of zero.
+  range: (editor) -> toBeImplementedInSubclass()
 
 TraversalDirection =
   next: 'next'
