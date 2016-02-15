@@ -4,7 +4,7 @@ fs = require 'fs'
 PlainBlock = require '../../../lib/blocks/text.plain'
 {Point} = require 'atom'
 
-describe "text.plain", ->
+fdescribe "text.plain", ->
   need = it
   pending = xit
 
@@ -24,9 +24,18 @@ describe "text.plain", ->
                                                 .getBufferPosition())
     expect(b).toBeDefined()
 
-  pending "empty lines to be paragraphs at depth 0", ->
-    b = block 0, 0
-    expect(b.depth(@editor)).toBe 0
-    expect(b.$cd).toBe 0
+  describe "paragraphs (P) at depth 0", ->
 
-  pending "whitespace to be ignored, and thus be similar to empty lines", ->
+    for [description, row] in [
+      ["empty lines on top of document to be P", 0],
+      ["empty lines within the document to be P, ignoring whitespace", 1],
+      ["lines with empty line above to be P, ignoring whitespace", 2]
+    ]
+      ((row) ->
+        need description, ->
+          b = block row, 0
+          expect(b.depth(@editor)).toBe 0
+          expect(b.$cd).toBe 0
+        )(row)
+
+    pending "whitespace to be ignored, and thus be similar to empty lines", ->
