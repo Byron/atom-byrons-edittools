@@ -3,12 +3,14 @@ fs = require 'fs'
 
 PlainBlock = require '../../../lib/blocks/text.plain'
 {Point} = require 'atom'
+initTextBlockMatchers = require './text.plain-matchers'
 
 describe "text.plain", ->
   need = it
   pending = xit
 
   beforeEach ->
+    initTextBlockMatchers(this)
     waitsForPromise -> atom.workspace.open('sample.txt')
     runs ->
       data = fs.readFileSync path.join __dirname, '..', '..', 'fixtures',
@@ -61,3 +63,9 @@ describe "text.plain", ->
             expect(b.$cd).toBe 3
         )(row, column)
       null
+
+  describe "range(..)", ->
+    describe "for words (W)", ->
+      pending "computes range at beginning of W", ->
+        b = block 2, 2
+        expect(b).toSelect('hello', @editor)

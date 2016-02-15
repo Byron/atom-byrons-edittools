@@ -45,4 +45,6 @@ class PlainBlock extends BlockInterface
            tryObtainLineDepth(@$cp, editor) or
            3
 
+  range: (editor) ->
+    tbd()
 module.exports = PlainBlock
