@@ -25,10 +25,10 @@ describe "text.plain", ->
     expect(b).toBeDefined()
 
   describe "paragraphs (P) at depth 1", ->
-    for column in [0]
+    for column in [0, 1]
       for [row, description] in [
         [0, "empty lines on top of document to be P"],
-        # [1, "empty lines within the document to be P, ignoring whitespace"],
+        [1, "empty lines within the document to be P, ignoring whitespace"],
         [2, "lines with empty line above to be P, ignoring whitespace"]
       ]
         ((row) ->

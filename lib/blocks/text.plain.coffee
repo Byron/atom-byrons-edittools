@@ -20,8 +20,9 @@ class PlainBlock extends BlockInterface
 
   isPositionedWithinWhitespace = (p, editor) ->
     line = editor.lineTextForBufferRow p.row
+    return true if line.length == 0
     matches = /^\s+/.exec line
-    return null unless matches
+    return false unless matches
     p.column < matches[0].length
 
   tryObtainParagraphDepth = (p, editor) ->
