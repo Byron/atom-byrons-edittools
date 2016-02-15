@@ -18,23 +18,30 @@ class PlainBlock extends BlockInterface
   trimmedLine = (editor, row) ->
     editor.lineTextForBufferRow(row).trim()
 
-  obtainParagraphOrLineDepth = (p, editor) ->
+  isPositionedWithinWhitespace = (p, editor) ->
+    line = editor.lineTextForBufferRow p.row
+    matches = /^\s+/.exec line
+    return null unless matches
+    p.column < matches[0].length
+
+  tryObtainParagraphDepth = (p, editor) ->
     prevRow = p.row - 1
     if (p.column == 0 and prevRow < 0) or
-       trimmedLine(editor, p.row).length == 0 or
-       trimmedLine(editor, prevRow).length == 0
-      return 0
+       (isPositionedWithinWhitespace(p, editor) and
+        (trimmedLine(editor, p.row).length == 0 or
+         trimmedLine(editor, prevRow).length == 0))
+      return 1
+    null
 
-    tbd()
+  tryObtainLineDepth = (p, editor) ->
+    if isPositionedWithinWhitespace p, editor
+      return 2
+    null
 
   depth: (editor) ->
     return @cd if @$cd?
-    @$cd = obtainParagraphOrLineDepth @$cp, editor
-    unless @$cd?
-      tbd()
-    @$cd
-
-
-
+    @$cd = tryObtainParagraphDepth(@$cp, editor) or
+           tryObtainLineDepth(@$cp, editor) or
+           3
 
 module.exports = PlainBlock
