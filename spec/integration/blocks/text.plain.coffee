@@ -24,39 +24,40 @@ describe "text.plain", ->
                                                 .getBufferPosition())
     expect(b).toBeDefined()
 
-  describe "paragraphs (P) at depth 1", ->
-    for column in [0, 1]
-      for [row, description] in [
-        [0, "empty lines on top of document to be P"],
-        [1, "empty lines within the document to be P, ignoring whitespace"],
-        [2, "lines with empty line above to be P, ignoring whitespace"]
+  describe "depth()", ->
+    describe "paragraphs (P) at depth 1", ->
+      for column in [0, 1]
+        for [row, description] in [
+          [0, "empty lines on top of document to be P"],
+          [1, "empty lines within the document to be P, ignoring whitespace"],
+          [2, "lines with empty line above to be P, ignoring whitespace"]
+        ]
+          ((row) ->
+            need description, ->
+              b = block row, column
+              expect(b.depth(@editor)).toBe 1
+              expect(b.$cd).toBe 1
+            )(row)
+
+    describe "lines (L) at depth 2", ->
+      need "L within paragraph, ignoring whitespace", ->
+        for column in [0, 1]
+          b = block 3, column
+          expect(b.depth(@editor)).toBe 2
+          expect(b.$cd).toBe 2
+
+    describe "words (W) at depth 3", ->
+      for [row, column, description] in [
+        [3, 2, "W at beginning of word"]
+        [3, 3, "W in middle of word"]
+        [3, 14, "W at end of word"]
+        [5, 0, "W at start of line and word"]
+        [5, 13, "W at end of line and word"]
       ]
-        ((row) ->
+        ((row, column) ->
           need description, ->
             b = block row, column
-            expect(b.depth(@editor)).toBe 1
-            expect(b.$cd).toBe 1
-          )(row)
-
-  describe "lines (L) at depth 2", ->
-    need "L within paragraph, ignoring whitespace", ->
-      for column in [0, 1]
-        b = block 3, column
-        expect(b.depth(@editor)).toBe 2
-        expect(b.$cd).toBe 2
-
-  describe "words (W) at depth 3", ->
-    for [row, column, description] in [
-      [3, 2, "W at beginning of word"]
-      [3, 3, "W in middle of word"]
-      [3, 14, "W at end of word"]
-      [5, 0, "W at start of line and word"]
-      [5, 13, "W at end of line and word"]
-    ]
-      ((row, column) ->
-        need description, ->
-          b = block row, column
-          expect(b.depth(@editor)).toBe 3
-          expect(b.$cd).toBe 3
-      )(row, column)
-    null
+            expect(b.depth(@editor)).toBe 3
+            expect(b.$cd).toBe 3
+        )(row, column)
+      null
