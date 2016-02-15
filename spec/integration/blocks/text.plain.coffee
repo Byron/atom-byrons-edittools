@@ -25,17 +25,18 @@ fdescribe "text.plain", ->
     expect(b).toBeDefined()
 
   describe "paragraphs (P) at depth 0", ->
+    for column in [0, 3, 9]
+      for [row, description] in [
+        [0, "empty lines on top of document to be P"],
+        [1, "empty lines within the document to be P, ignoring whitespace"],
+        [2, "lines with empty line above to be P, ignoring whitespace"]
+      ]
+        ((row) ->
+          need description, ->
+            b = block row, column
+            expect(b.depth(@editor)).toBe 0
+            expect(b.$cd).toBe 0
+          )(row)
 
-    for [description, row] in [
-      ["empty lines on top of document to be P", 0],
-      ["empty lines within the document to be P, ignoring whitespace", 1],
-      ["lines with empty line above to be P, ignoring whitespace", 2]
-    ]
-      ((row) ->
-        need description, ->
-          b = block row, 0
-          expect(b.depth(@editor)).toBe 0
-          expect(b.$cd).toBe 0
-        )(row)
-
-    pending "whitespace to be ignored, and thus be similar to empty lines", ->
+  describe "lines (P) at depth 1", ->
+    pending "line within paragraph, ignoring whitespace", ->
