@@ -11,7 +11,7 @@ class PlainBlock extends BlockInterface
   # Construct from the cursor point at which we are located
   # $cp ~= cursorPosition
   # $cd ~= cached depth
-  constructor: (@$cp, @$cd=null) ->
+  constructor: (@$cp, @$cd=null, @$cr=null) ->
   at: (direction, editor) ->
     tbd()
 
@@ -46,5 +46,15 @@ class PlainBlock extends BlockInterface
            3
 
   range: (editor) ->
-    tbd()
+    return @$cr if @$cr?
+    handler = (info) =>
+      if info.range.containsPoint @$cp
+        @$cr = info.range
+      info.stop()
+
+    editor.scanInBufferRange editor.getLastCursor().wordRegExp(),
+                             [@$cp, editor.getBuffer().getEndPosition()],
+                             handler
+    throw new Error "can only find words right now" unless @$cr?
+    @$cr
 module.exports = PlainBlock

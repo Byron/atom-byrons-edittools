@@ -66,6 +66,13 @@ describe "text.plain", ->
 
   describe "range(..)", ->
     describe "for words (W)", ->
-      pending "computes range at beginning of W", ->
-        b = block 2, 2
-        expect(b).toSelect('hello', @editor)
+      for [description, word, row, column] in [
+        ["computes range at beginning of W", "hello", 2, 2]
+        # ["computes range at end of W", "hello", 2, 7]
+        # ["computes range in middle of W", "hello", 3, 5]
+      ]
+        ((row, column) ->
+          it "#{description} word: '#{word}' row: #{row}, col: #{column}", ->
+            b = block row, column
+            expect(b).toSelect(word, @editor)
+        )(row, column)

@@ -11,7 +11,7 @@ toSelect = (expected, editor) ->
       message = "input must be a Block providing the `range(..)`"
     else
       range = @actual.range editor
-      text = @editor.getTextInBufferRange
+      text = editor.getTextInBufferRange range
       pass = text == expected
       if not pass
         message = "expected text in range #{range} to be
