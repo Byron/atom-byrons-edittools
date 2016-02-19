@@ -45,12 +45,6 @@ class PlainBlock extends BlockInterface
            tryObtainLineDepth(@$cp, editor) or
            3
 
-  @toSequentialRange = (start, end) ->
-    if end.row < start.row || end.column < start.column
-      [end, start]
-    else
-      [start, end]
-
   range: (editor) ->
     return @$cr if @$cr?
     handler = (info) =>
