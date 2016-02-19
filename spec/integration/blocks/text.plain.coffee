@@ -29,7 +29,7 @@ describe "text.plain", ->
   describe "depth()", ->
     it "caches the depth", ->
       b = block 0, 0
-      expect(b.depth(@editor)).toBe b.depth(@editor)
+      expect(b.depth @editor).toBe b.depth @editor
 
     describe "paragraphs (P) at depth 1", ->
       for column in [0, 1]
@@ -41,7 +41,7 @@ describe "text.plain", ->
           ((row) ->
             need description, ->
               b = block row, column
-              expect(b.depth(@editor)).toBe 1
+              expect(b.depth @editor).toBe 1
               expect(b.$cd).toBe 1
             )(row)
 
@@ -49,7 +49,7 @@ describe "text.plain", ->
       need "L within paragraph, ignoring whitespace", ->
         for column in [0, 1]
           b = block 3, column
-          expect(b.depth(@editor)).toBe 2
+          expect(b.depth @editor).toBe 2
           expect(b.$cd).toBe 2
 
     describe "words (W) at depth 3", ->
@@ -73,16 +73,18 @@ describe "text.plain", ->
         expect(b.depth(@editor)).toBe 3
 
   describe "range(..)", ->
-    xit "caches the range", ->
-      b = block 0, 0
-      expect(b.range(@editor)).toBe b.range(@editor)
+    it "caches the range", ->
+      b = block 3, 0
+      expect(b.range(@editor)).toBe b.range @editor
 
     describe "for words (W)", ->
       for [description, word, row, column] in [
         ["range at beginning of W", "hello", 2, 2]
-        ["range at end of W", "hello", 2, 7]
+        ["range at nd of W", "hello", 2, 7]
         ["range in middle of W", "another", 3, 5]
-        ["range of W at the end of document", "paragraph", 8, 15]
+        ["range at the end of document", "paragraph", 8, 15]
+        ["range even if W is whitespace between words", "   ", 8, 6]
+        ["range if W is whitespace at end of document", "  ", 3, 15]
       ]
         ((row, column, word) ->
           it "#{description} word: '#{word}' row: #{row}, col: #{column}", ->
@@ -90,17 +92,12 @@ describe "text.plain", ->
             expect(b).toSelect(word, @editor)
         )(row, column, word)
 
-      it "should return a range at cursor if there is no word", ->
-        b = block 8, 6
-        expect(b).toSelect('', @editor)
-        r = b.range(@editor)
-
-        expect(r.start).toEqual b.$cp
-        expect(r.start).not.toBe b.$cp
-        expect(r.end).toEqual b.$cp
-        expect(r.end).not.toBe b.$cp
-
     describe "for lines (L)", ->
-      it "selects the entire line", ->
+      it "selects the entire line, with whitespace untrimmed", ->
         b = block 3, 1
         expect(b).toSelect("  another line  ", @editor)
+
+      it "selects the entire line at the start of the document", ->
+        b = block 8, 1
+        (enforceLevelToLine = () -> b.$cd = 2)()
+        expect(b).toSelect("other   paragraph", @editor)
