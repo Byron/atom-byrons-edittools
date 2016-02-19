@@ -45,16 +45,27 @@ class PlainBlock extends BlockInterface
            tryObtainLineDepth(@$cp, editor) or
            3
 
+  @toSequentialRange = (start, end) ->
+    if end.row < start.row || end.column < start.column
+      [end, start]
+    else
+      [start, end]
+
   range: (editor) ->
     return @$cr if @$cr?
     handler = (info) =>
-      if info.range.containsPoint @$cp
-        @$cr = info.range
+      console.log info
+      @$cr = info.range if info.range.containsPoint @$cp
       info.stop()
 
-    editor.scanInBufferRange editor.getLastCursor().wordRegExp(),
-                             [@$cp, editor.getBuffer().getEndPosition()],
-                             handler
+    for [scanMethod, endPosition] in [
+      [editor.scanInBufferRange, editor.getBuffer().getEndPosition()],
+      [editor.backwardsScanInBufferRange, editor.getBuffer().getFirstPosition()]
+    ]
+      scanMethod.bind(editor)(editor.getLastCursor().wordRegExp(),
+                              [@$cp, endPosition],
+                              handler)
+      break if @$cr?
     throw new Error "can only find words right now" unless @$cr?
     @$cr
 module.exports = PlainBlock

@@ -64,11 +64,37 @@ describe "text.plain", ->
         )(row, column)
       null
 
+  describe "toSequentialRange()", ->
+    beforeEach ->
+      @first = new Point 1, 2
+      @second = new Point 3, 4
+      @third = new Point 3, 6
+
+    it "should not alter a range already in order", ->
+      res = PlainBlock.toSequentialRange @first, @second
+      expect(res[0]).toEqual @first
+      expect(res[1]).toEqual @second
+
+    it "should reverse points whose values are out of order", ->
+      res = PlainBlock.toSequentialRange @second, @first
+      expect(res[0]).toEqual @first
+      expect(res[1]).toEqual @second
+
+    it "should reverse points if the column dictates it", ->
+      res = PlainBlock.toSequentialRange @third, @second
+      expect(res[0]).toEqual @second
+      expect(res[1]).toEqual @third
+
+    it "should not reverse points if the column does not dictate it", ->
+      res = PlainBlock.toSequentialRange @second, @third
+      expect(res[0]).toEqual @second
+      expect(res[1]).toEqual @third
+
   describe "range(..)", ->
     describe "for words (W)", ->
       for [description, word, row, column] in [
         ["computes range at beginning of W", "hello", 2, 2]
-        # ["computes range at end of W", "hello", 2, 7]
+        ["computes range at end of W", "hello", 2, 7]
         # ["computes range in middle of W", "hello", 3, 5]
       ]
         ((row, column) ->
