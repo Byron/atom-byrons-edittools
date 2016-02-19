@@ -84,7 +84,18 @@ class PlainBlock extends BlockInterface
     new Range [cp.row, 0], [cp.row, l.length]
     
   paragraphRange = (cp, editor) ->
-    tbd()
+    trimmedLineAt = (row) -> editor.lineTextForBufferRow(row).trim()
+    points = []
+    
+    for direction in [-1, 1]
+      row = cp.row
+      while (trimmedLineAt row).length > 0
+        row += direction
+      row = if row != cp.row then row - direction else cp.row
+      points.push new Point row, 0
+    
+    points[1].column = editor.lineTextForBufferRow(points[1].row).length
+    Range.fromObject points
 
   range: (editor) ->
     return @$cr if @$cr?

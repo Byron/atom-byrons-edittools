@@ -2,7 +2,7 @@ path = require 'path'
 fs = require 'fs'
 
 PlainBlock = require '../../../lib/blocks/text.plain'
-{Point} = require 'atom'
+{Point, Range} = require 'atom'
 initTextBlockMatchers = require './text.plain-matchers'
 
 describe "text.plain", ->
@@ -71,13 +71,19 @@ describe "text.plain", ->
         )(row, column, word)
 
     describe "for lines (L)", ->
-      enforceLevelToLine = (b) -> b.$cd = 2
+      enforceDepthToLine = (b) -> b.$cd = 2; b
       it "selects the entire line, with whitespace untrimmed", ->
-        b = block 3, 1
-        enforceLevelToLine b
+        b = enforceDepthToLine block 3, 1
         expect(b).toSelect("  another line  ", @editor)
 
       it "selects the entire line at the start of the document", ->
-        b = block 8, 1
-        enforceLevelToLine b
+        b = enforceDepthToLine block 8, 1
         expect(b).toSelect("other   paragraph", @editor)
+        
+    describe "for paragraphs (P)", ->
+      enforceDepthToParagraph = (b) -> b.$cd = 1; b
+      
+      it "should select entire paragraphs, spanning multiple lines", ->
+        b = enforceDepthToParagraph block 2, 0
+        expect(b.range(@editor)).toEqual new Range [2, 0], [3, 16]
+      
