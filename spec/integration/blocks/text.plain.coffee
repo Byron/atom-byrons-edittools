@@ -14,7 +14,7 @@ describe "text.plain", ->
     waitsForPromise -> atom.workspace.open('sample.txt')
     runs ->
       data = fs.readFileSync path.join __dirname, '..', '..', 'fixtures',
-                                       'buffers', 'text.plain'
+        'buffers', 'text.plain'
       @editor = atom.workspace.getActiveTextEditor()
       @editor.setText data.toString()
       @editor.setCursorBufferPosition([0, 0])
@@ -23,10 +23,14 @@ describe "text.plain", ->
 
   it "can be constructed from buffer position", ->
     b = PlainBlock.newFromBufferPosition(@editor.getCursors()[0]
-                                                .getBufferPosition())
+      .getBufferPosition())
     expect(b).toBeDefined()
 
   describe "depth()", ->
+    it "caches the depth", ->
+      b = block 0, 0
+      expect(b.depth(@editor)).toBe b.depth(@editor)
+
     describe "paragraphs (P) at depth 1", ->
       for column in [0, 1]
         for [row, description] in [
@@ -69,6 +73,10 @@ describe "text.plain", ->
         expect(b.depth(@editor)).toBe 3
 
   describe "range(..)", ->
+    xit "caches the range", ->
+      b = block 0, 0
+      expect(b.range(@editor)).toBe b.range(@editor)
+
     describe "for words (W)", ->
       for [description, word, row, column] in [
         ["range at beginning of W", "hello", 2, 2]
@@ -91,3 +99,8 @@ describe "text.plain", ->
         expect(r.start).not.toBe b.$cp
         expect(r.end).toEqual b.$cp
         expect(r.end).not.toBe b.$cp
+
+    describe "for lines (L)", ->
+      it "selects the entire line", ->
+        b = block 3, 1
+        expect(b).toSelect("  another line  ", @editor)
