@@ -59,6 +59,7 @@ describe "text.plain", ->
         [3, 14, "W at end of word"]
         [5, 0, "W at start of line and word"]
         [5, 13, "W at end of line and word"]
+        [8, 6, "W between words"]
       ]
         ((row, column) ->
           need description, ->
@@ -68,23 +69,19 @@ describe "text.plain", ->
         )(row, column)
       null
 
-      it "should return depth 3 between words", ->
-        b = block 8, 6
-        expect(b.depth(@editor)).toBe 3
-
   describe "range(..)", ->
     it "caches the range", ->
       b = block 3, 0
       expect(b.range(@editor)).toBe b.range @editor
 
     describe "for words (W)", ->
-      for [description, word, row, column] in [
-        ["range at beginning of W", "hello", 2, 2]
-        ["range at nd of W", "hello", 2, 7]
-        ["range in middle of W", "another", 3, 5]
-        ["range at the end of document", "paragraph", 8, 15]
-        ["range even if W is whitespace between words", "   ", 8, 6]
-        ["range if W is whitespace at end of document", "  ", 3, 15]
+      for [row, column, description, word] in [
+        [2, 2, "range at beginning of W", "hello"]
+        [2, 7, "range at nd of W", "hello"]
+        [3, 5, "range in middle of W", "another"]
+        [8, 15, "range at the end of document", "paragraph"]
+        [8, 6, "range even if W is whitespace between words", "   "]
+        [3, 15, "range if W is whitespace at end of document", "  "]
       ]
         ((row, column, word) ->
           it "#{description} word: '#{word}' row: #{row}, col: #{column}", ->
@@ -93,11 +90,13 @@ describe "text.plain", ->
         )(row, column, word)
 
     describe "for lines (L)", ->
+      enforceLevelToLine = (b) -> b.$cd = 2
       it "selects the entire line, with whitespace untrimmed", ->
         b = block 3, 1
+        enforceLevelToLine b
         expect(b).toSelect("  another line  ", @editor)
 
       it "selects the entire line at the start of the document", ->
         b = block 8, 1
-        (enforceLevelToLine = () -> b.$cd = 2)()
+        enforceLevelToLine b
         expect(b).toSelect("other   paragraph", @editor)
