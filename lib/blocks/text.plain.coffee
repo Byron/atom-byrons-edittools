@@ -15,35 +15,9 @@ class PlainBlock extends BlockInterface
   at: (direction, editor) ->
     tbd()
 
-  trimmedLine = (editor, row) ->
-    editor.lineTextForBufferRow(row).trim()
-
-  isPositionedWithinWhitespace = (p, editor) ->
-    line = editor.lineTextForBufferRow p.row
-    return true if line.length == 0
-    matches = /^\s+/.exec line
-    return false unless matches
-    p.column < matches[0].length
-
-  tryObtainParagraphDepth = (p, editor) ->
-    prevRow = p.row - 1
-    if (p.column == 0 and prevRow < 0) or
-       (isPositionedWithinWhitespace(p, editor) and
-        (trimmedLine(editor, p.row).length == 0 or
-         trimmedLine(editor, prevRow).length == 0))
-      return 1
-    null
-
-  tryObtainLineDepth = (p, editor) ->
-    if isPositionedWithinWhitespace p, editor
-      return 2
-    null
-
   depth: (editor) ->
     return @$cd if @$cd?
-    @$cd = tryObtainParagraphDepth(@$cp, editor) or
-            tryObtainLineDepth(@$cp, editor) or
-            3
+    @$cd = 3
            
   wordRange = (cp, editor) ->
     dirs = []
