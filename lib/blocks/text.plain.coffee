@@ -1,7 +1,7 @@
 {TraversalDirection, Relation, BlockInterface} =
   require '../../lib/core/block-interface'
 {previous, next} = TraversalDirection
-{Point} = require 'atom'
+{Point, Range} = require 'atom'
 
 
 # block where traversal order is depth first
@@ -47,9 +47,10 @@ class PlainBlock extends BlockInterface
 
   range: (editor) ->
     return @$cr if @$cr?
+    dirs = []
+
     handler = (info) =>
-      console.log info
-      @$cr = info.range if info.range.containsPoint @$cp
+      dirs.push info.range if info.range.containsPoint @$cp
       info.stop()
 
     for [scanMethod, endPosition] in [
@@ -59,7 +60,11 @@ class PlainBlock extends BlockInterface
       scanMethod.bind(editor)(editor.getLastCursor().wordRegExp(),
                               [@$cp, endPosition],
                               handler)
-      break if @$cr?
-    throw new Error "can only find words right now" unless @$cr?
+
+    @$cr = dirs[0]
+    if (nr = dirs[1])?
+      @$cr.start.column = nr.start.column if @$cr.start.column > nr.start.column
+      @$cr.end.column = nr.end.column if @$cr.end.column < nr.end.column
+    @$cr = new Range @$cp.copy(), @$cp.copy() unless @$cr?
     @$cr
 module.exports = PlainBlock

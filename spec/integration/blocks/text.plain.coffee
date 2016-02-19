@@ -64,15 +64,30 @@ describe "text.plain", ->
         )(row, column)
       null
 
+      it "should return depth 3 between words", ->
+        b = block 8, 6
+        expect(b.depth(@editor)).toBe 3
+
   describe "range(..)", ->
     describe "for words (W)", ->
       for [description, word, row, column] in [
-        ["computes range at beginning of W", "hello", 2, 2]
-        ["computes range at end of W", "hello", 2, 7]
-        # ["computes range in middle of W", "hello", 3, 5]
+        ["range at beginning of W", "hello", 2, 2]
+        ["range at end of W", "hello", 2, 7]
+        ["range in middle of W", "another", 3, 5]
+        ["range of W at the end of document", "paragraph", 8, 15]
       ]
-        ((row, column) ->
+        ((row, column, word) ->
           it "#{description} word: '#{word}' row: #{row}, col: #{column}", ->
             b = block row, column
             expect(b).toSelect(word, @editor)
-        )(row, column)
+        )(row, column, word)
+
+      it "should return a range at cursor if there is no word", ->
+        b = block 8, 6
+        expect(b).toSelect('', @editor)
+        r = b.range(@editor)
+
+        expect(r.start).toEqual b.$cp
+        expect(r.start).not.toBe b.$cp
+        expect(r.end).toEqual b.$cp
+        expect(r.end).not.toBe b.$cp
