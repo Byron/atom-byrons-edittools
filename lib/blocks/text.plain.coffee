@@ -5,23 +5,25 @@
 
 # block where traversal order is depth first
 class PlainBlock extends BlockInterface
+  PARAGRAPH_DEPTH = 1
+  LINE_DEPTH = 2
+  WORD_DEPTH = 3
+  
   @newFromBufferPosition = (position) -> new PlainBlock position
   
-  consecutivePositionAt = (direction, r) ->
+  positionForRange = (direction, r) ->
     switch direction
-      when next then r.end.translate [0, +1]
-      when previous then r.start.translate [0, -1]
+      when next then r.end
+      when previous then r.start
       else throw new Error "unknown direction: #{direction}"
 
   wordAt = (cr, direction, editor) ->
-    np = consecutivePositionAt direction, cr
-    line = editor.lineTextForBufferRow np.row
-    return null if np.column >= line.length
+    line = editor.lineTextForBufferRow cr.end.row
+    return null if cr.end.column >= line.length
     
-    switch direction
-      when next then tbd()
-      when previous then tbd()
-    tbd()
+    np = positionForRange direction, cr
+    nr = wordRange np, editor
+    new PlainBlock np, WORD_DEPTH, nr
 
   # Construct from the cursor point at which we are located
   # $cp ~= cursorPosition
@@ -30,14 +32,14 @@ class PlainBlock extends BlockInterface
   at: (direction, editor) ->
     handler =
     switch d = @depth editor
-      when 3 then wordAt
+      when WORD_DEPTH then wordAt
       else throw new Error "unknown depth: #{d}"
     
     handler @range(editor), direction, editor
 
   depth: (editor) ->
     return @$cd if @$cd?
-    @$cd = 3
+    @$cd = WORD_DEPTH
            
   wordRange = (cp, editor) ->
     dirs = []
@@ -122,9 +124,9 @@ class PlainBlock extends BlockInterface
 
     @$cr =
       (switch d = @depth(editor)
-        when 1 then paragraphRange
-        when 2 then lineRange
-        when 3 then wordRange
+        when PARAGRAPH_DEPTH then paragraphRange
+        when LINE_DEPTH then lineRange
+        when WORD_DEPTH then wordRange
         else throw new Error "unknown depth: #{d}"
       )(@$cp, editor)
     @$cr

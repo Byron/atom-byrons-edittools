@@ -51,10 +51,12 @@ describe "text.plain", ->
       [previous, [8,0], [8,5]],
       [next, [8,8], [8,17]]
     ]
-      ((start, end) ->
-        pending "should produce correct #{direction} block from whitespace", ->
+      ((direction, start, end) ->
+        it "should produce correct #{direction} block from whitespace", ->
           b = block 8, 6
-      )(start, end)
+          desiredRange = new Range start, end
+          expect(b.at(direction, @editor).range @editor).toEqual desiredRange
+      )(direction, start, end)
     
   describe "depth()", ->
     it "caches the depth", ->
