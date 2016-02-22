@@ -34,7 +34,7 @@ describe "text.plain", ->
       .getBufferPosition())
     expect(b).toBeDefined()
     
-  describe "at()", ->
+  fdescribe "at()", ->
     it "should throw at an unknown depth", ->
       checkThrowIfUnknownDepthOnCall 'at', @editor
       
@@ -46,6 +46,9 @@ describe "text.plain", ->
     it "should not traverse next at end of line", ->
       b = block 2, 11
       expect(b.at next, @editor).toBe null
+      
+    pending "should not traverse next at end of line, skipping WS", ->
+      tbd()
     
     for [direction, word] in [
       [previous, 'other'],
@@ -67,6 +70,21 @@ describe "text.plain", ->
           desiredRange = new Range start, end
           expect(b.at(direction, @editor).range @editor).toEqual desiredRange
       )(direction, start, end)
+      
+    for [position, start, end] in [
+      [[3, 3], [3, 0], [3, 16]]
+      [[5, 1], [5, 0], [5, 13]]
+    ]
+      ((position, start, end) ->
+        it "should move from word to line level at line start, skipping WS", ->
+          b = block.apply(null, position)
+          expect(b.depth @editor).toBe 3
+          nb = b.at previous, @editor
+          
+          expect(nb.depth @editor).toBe 2
+          entireLine = new Range start, end
+          expect(nb.range @editor).toEqual entireLine
+      )(position, start, end)
     
   describe "depth()", ->
     it "caches the depth", ->
