@@ -31,9 +31,9 @@ class PlainBlock extends BlockInterface
   constructor: (@$cp, @$cd=null, @$cr=null) ->
   at: (direction, editor) ->
     handler =
-    switch d = @depth editor
-      when WORD_DEPTH then wordAt
-      else throw new Error "unknown depth: #{d}"
+      switch d = @depth editor
+        when WORD_DEPTH then wordAt
+        else throw new Error "unknown depth: #{d}"
     
     handler @range(editor), direction, editor
 
@@ -50,9 +50,9 @@ class PlainBlock extends BlockInterface
         dirs.push info.range
       else
         seen[direction] =
-        switch direction
-          when next then info.range.start
-          when previous then info.range.end
+          switch direction
+            when next then info.range.start
+            when previous then info.range.end
 
       info.stop()
 
@@ -79,24 +79,13 @@ class PlainBlock extends BlockInterface
 
         np =
           if (p = seen[next])?
-            if p.row == cp.row
-              p
-            else
-              positionAtLineEnd()
+            if p.row == cp.row then p else positionAtLineEnd()
+          else positionAtLineStart()
         
-        unless np?
-          np = positionAtLineStart()
-
         pp =
           if (p = seen[previous])?
-            if p.row == cp.row
-              p
-            else
-              positionAtLineStart()
-
-        unless pp?
-          pp = positionAtLineEnd()
-        
+            if p.row == cp.row then p else positionAtLineStart()
+          else positionAtLineEnd()
         cr = new Range pp, np
       )()
     cr
