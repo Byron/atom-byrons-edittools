@@ -25,13 +25,14 @@ class PlainBlock extends BlockInterface
     trimmedSelectionIsEmpty = () ->
       editor.getTextInBufferRange(nr).trim().length == 0
       
-    return null if direction == next and trimmedSelectionIsEmpty()
-    
-    if cr.start.column == 0 or trimmedSelectionIsEmpty()
-      nr = new Range nr.start, new Point nr.start.row, line.length
-      new PlainBlock nr.start, LINE_DEPTH, nr
-    else
-      new PlainBlock np, WORD_DEPTH, nr
+    switch
+      when direction == next and trimmedSelectionIsEmpty()
+        null
+      when cr.start.column == 0 or trimmedSelectionIsEmpty()
+        nr = new Range nr.start, new Point nr.start.row, line.length
+        new PlainBlock nr.start, LINE_DEPTH, nr
+      else
+        new PlainBlock np, WORD_DEPTH, nr
 
   # Construct from the cursor point at which we are located
   # $cp ~= cursorPosition
