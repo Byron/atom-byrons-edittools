@@ -47,13 +47,23 @@ describe "text.plain", ->
       b = block 2, 11
       expect(b.at next, @editor).toBe null
     
+    for [direction, word] in [
+      [previous, 'other'],
+      [next, 'paragraph']
+    ]
+      ((direction, word) ->
+        it "should produce #{direction} block from whitespace (WS)", ->
+          b = block 8, 6
+          expect(b.at(direction, @editor)).toSelect word, @editor
+      )(direction, word)
+      
     for [direction, start, end] in [
-      [previous, [8,0], [8,5]],
-      [next, [8,8], [8,17]]
+      [previous, [10, 0], [10, 3]],
+      [next, [10, 12], [10,16]]
     ]
       ((direction, start, end) ->
-        it "should produce correct #{direction} block from whitespace", ->
-          b = block 8, 6
+        it "should produce #{direction} word block from word, skipping WS", ->
+          b = block 10, 7
           desiredRange = new Range start, end
           expect(b.at(direction, @editor).range @editor).toEqual desiredRange
       )(direction, start, end)

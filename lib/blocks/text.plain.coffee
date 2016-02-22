@@ -13,8 +13,8 @@ class PlainBlock extends BlockInterface
   
   positionForRange = (direction, r) ->
     switch direction
-      when next then r.end
-      when previous then r.start
+      when next then r.end.translate [0, +1]
+      when previous then r.start.translate [0, -1]
       else throw new Error "unknown direction: #{direction}"
 
   wordAt = (cr, direction, editor) ->
