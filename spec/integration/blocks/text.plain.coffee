@@ -2,12 +2,20 @@ path = require 'path'
 fs = require 'fs'
 
 PlainBlock = require '../../../lib/blocks/text.plain'
+{TraversalDirection} = require '../../../lib/core/block-interface'
 {Point, Range} = require 'atom'
 initTextBlockMatchers = require './text.plain-matchers'
+
+{next, previous} = TraversalDirection
 
 describe "text.plain", ->
   need = it
   pending = xit
+  
+  checkThrowIfUnknownDepthOnCall = (m) ->
+    b = block 2, 11
+    b.$cd = 42
+    expect(() -> b[m]()).toThrow new Error "unknown depth: 42"
 
   beforeEach ->
     initTextBlockMatchers(this)
@@ -25,6 +33,19 @@ describe "text.plain", ->
     b = PlainBlock.newFromBufferPosition(@editor.getCursors()[0]
       .getBufferPosition())
     expect(b).toBeDefined()
+    
+  describe "at()", ->
+    it "should throw at an unknown depth", ->
+      checkThrowIfUnknownDepthOnCall 'at', @editor
+      
+    it "should throw on unknown direction", ->
+      b = block 2, 1
+      error = new Error "unknown direction: location"
+      expect(() => b.at 'location', @editor).toThrow error
+      
+    pending "should not traverse next at end of line", ->
+      b = block 2, 11
+      expect(b.at next, @editor).toBe null
 
   describe "depth()", ->
     it "caches the depth", ->
@@ -53,6 +74,9 @@ describe "text.plain", ->
     it "caches the range", ->
       b = block 3, 0
       expect(b.range(@editor)).toBe b.range @editor
+      
+    it "should throw if depth is invalid", ->
+      checkThrowIfUnknownDepthOnCall 'range'
 
     describe "for words (W)", ->
       for [row, column, description, word] in [

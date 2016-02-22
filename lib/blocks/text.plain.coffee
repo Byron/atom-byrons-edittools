@@ -8,12 +8,25 @@
 class PlainBlock extends BlockInterface
   @newFromBufferPosition = (position) -> new PlainBlock position
 
+  wordAt = (cp, direction, editor) ->
+    r = wordRange cp, editor
+    switch direction
+      when next then tbd()
+      when previous then tbd()
+      else throw new Error "unknown direction: #{direction}"
+    tbd()
+
   # Construct from the cursor point at which we are located
   # $cp ~= cursorPosition
   # $cd ~= cached depth
   constructor: (@$cp, @$cd=null, @$cr=null) ->
   at: (direction, editor) ->
-    tbd()
+    handler =
+    switch d = @depth editor
+      when 3 then wordAt
+      else throw new Error "unknown depth: #{d}"
+    
+    handler @$cp, direction, editor
 
   depth: (editor) ->
     return @$cd if @$cd?
@@ -101,11 +114,11 @@ class PlainBlock extends BlockInterface
     return @$cr if @$cr?
 
     @$cr =
-      (switch @depth(editor)
+      (switch d = @depth(editor)
         when 1 then paragraphRange
         when 2 then lineRange
         when 3 then wordRange
-        else throw new Error "unknown depth: #{@depth(editor)}"
+        else throw new Error "unknown depth: #{d}"
       )(@$cp, editor)
     @$cr
 module.exports = PlainBlock
