@@ -3,17 +3,24 @@
 {previous, next} = TraversalDirection
 {Point, Range} = require 'atom'
 
-
 # block where traversal order is depth first
 class PlainBlock extends BlockInterface
   @newFromBufferPosition = (position) -> new PlainBlock position
+  
+  consecutivePositionAt = (direction, r) ->
+    switch direction
+      when next then r.end.translate [0, +1]
+      when previous then r.start.translate [0, -1]
+      else throw new Error "unknown direction: #{direction}"
 
-  wordAt = (cp, direction, editor) ->
-    r = wordRange cp, editor
+  wordAt = (cr, direction, editor) ->
+    np = consecutivePositionAt direction, cr
+    line = editor.lineTextForBufferRow np.row
+    return null if np.column >= line.length
+    
     switch direction
       when next then tbd()
       when previous then tbd()
-      else throw new Error "unknown direction: #{direction}"
     tbd()
 
   # Construct from the cursor point at which we are located
@@ -26,7 +33,7 @@ class PlainBlock extends BlockInterface
       when 3 then wordAt
       else throw new Error "unknown depth: #{d}"
     
-    handler @$cp, direction, editor
+    handler @range(editor), direction, editor
 
   depth: (editor) ->
     return @$cd if @$cd?

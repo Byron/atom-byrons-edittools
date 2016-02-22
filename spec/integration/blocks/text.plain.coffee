@@ -43,10 +43,19 @@ describe "text.plain", ->
       error = new Error "unknown direction: location"
       expect(() => b.at 'location', @editor).toThrow error
       
-    pending "should not traverse next at end of line", ->
+    it "should not traverse next at end of line", ->
       b = block 2, 11
       expect(b.at next, @editor).toBe null
-
+    
+    for [direction, start, end] in [
+      [previous, [8,0], [8,5]],
+      [next, [8,8], [8,17]]
+    ]
+      ((start, end) ->
+        pending "should produce correct #{direction} block from whitespace", ->
+          b = block 8, 6
+      )(start, end)
+    
   describe "depth()", ->
     it "caches the depth", ->
       b = block 0, 0
