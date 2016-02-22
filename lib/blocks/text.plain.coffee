@@ -19,13 +19,15 @@ class PlainBlock extends BlockInterface
 
   wordAt = (cr, direction, editor) ->
     line = editor.lineTextForBufferRow cr.end.row
-    return null if cr.end.column >= line.length
-    
     np = positionForRange direction, cr
     nr = wordRange np, editor
     
-    if cr.start.column == 0 or
-       editor.getTextInBufferRange(nr).trim().length == 0
+    trimmedSelectionIsEmpty = () ->
+      editor.getTextInBufferRange(nr).trim().length == 0
+      
+    return null if direction == next and trimmedSelectionIsEmpty()
+    
+    if cr.start.column == 0 or trimmedSelectionIsEmpty()
       nr = new Range nr.start, new Point nr.start.row, line.length
       new PlainBlock nr.start, LINE_DEPTH, nr
     else

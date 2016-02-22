@@ -34,7 +34,7 @@ describe "text.plain", ->
       .getBufferPosition())
     expect(b).toBeDefined()
     
-  fdescribe "at()", ->
+  describe "at()", ->
     it "should throw at an unknown depth", ->
       checkThrowIfUnknownDepthOnCall 'at', @editor
       
@@ -47,8 +47,9 @@ describe "text.plain", ->
       b = block 2, 11
       expect(b.at next, @editor).toBe null
       
-    pending "should not traverse next at end of line, skipping WS", ->
-      tbd()
+    it "should not traverse next at end of line, skipping WS", ->
+      b = block 3, 13
+      expect(b.at next, @editor).toBe null
     
     for [direction, word] in [
       [previous, 'other'],
