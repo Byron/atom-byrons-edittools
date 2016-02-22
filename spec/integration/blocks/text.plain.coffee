@@ -83,7 +83,20 @@ describe "text.plain", ->
     describe "for paragraphs (P)", ->
       enforceDepthToParagraph = (b) -> b.$cd = 1; b
       
-      it "should select entire paragraphs, spanning multiple lines", ->
-        b = enforceDepthToParagraph block 2, 0
-        expect(b.range(@editor)).toEqual new Range [2, 0], [3, 16]
+      for [description, position, range] in [
+        ["should select entire paragraphs, spanning multiple lines",
+         [2, 1],
+         new Range [2, 0], [3, 16]],
+        ["should select single-line paragraphs",
+         [5, 5],
+         new Range [5, 0], [5, 13]],
+        ["should select single-line paragraphs at end of document",
+         [8, 3],
+         new Range [8, 0], [8, 17]]
+      ]
+        ((position, range) ->
+          it description, ->
+            b = enforceDepthToParagraph block.apply(null, position)
+            expect(b.range(@editor)).toEqual range
+        )(position, range)
       
