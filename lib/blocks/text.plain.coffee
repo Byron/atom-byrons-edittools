@@ -48,7 +48,10 @@ class PlainBlock extends BlockInterface
 
   depth: (editor) ->
     return @$cd if @$cd?
-    @$cd = WORD_DEPTH
+    @$cd =
+      if editor.lineTextForBufferRow(@$cp.row).length != 0
+        WORD_DEPTH
+      else LINE_DEPTH
            
   wordRange = (cp, editor) ->
     dirs = []

@@ -1,5 +1,6 @@
 path = require 'path'
 fs = require 'fs'
+_ = require 'lodash'
 
 PlainBlock = require '../../../lib/blocks/text.plain'
 {TraversalDirection} = require '../../../lib/core/block-interface'
@@ -28,7 +29,27 @@ describe "text.plain", ->
       @editor.setCursorBufferPosition([0, 0])
 
   block = (row, column) -> new PlainBlock(new Point(row, column))
-
+  
+  fdescribe "initial cursor position", ->
+    for [description, position, rangeOrWord, depth] in [
+      ["selects whitespace", [8, 6], [[8, 5], [8, 8]], 3]
+      ["selects words", [5, 2], "new", 3]
+      ["selects the line if it is completley empty", [6, 0], "", 2]
+      ["selects word at end of line", [2, 13], "world", 3]
+      ["selects whitespace at end of line", [3, 15], [[3, 14], [3, 16]], 3]
+    ]
+      ((position, rangeOrWord, depth) ->
+        it description, ->
+          b = block.apply(null, position)
+          expect(b.depth @editor).toBe depth
+          if _.isString rangeOrWord
+            word = rangeOrWord
+            expect(b).toSelect word, @editor
+          else
+            desiredRange = Range.fromObject(rangeOrWord)
+            expect(b.range @editor).toEqual desiredRange
+      )(position, rangeOrWord, depth)
+        
   it "can be constructed from buffer position", ->
     b = PlainBlock.newFromBufferPosition(@editor.getCursors()[0]
       .getBufferPosition())
