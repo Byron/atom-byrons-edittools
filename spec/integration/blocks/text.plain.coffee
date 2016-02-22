@@ -30,7 +30,7 @@ describe "text.plain", ->
 
   block = (row, column) -> new PlainBlock(new Point(row, column))
   
-  fdescribe "initial cursor position", ->
+  describe "initial cursor position", ->
     for [description, position, rangeOrWord, depth] in [
       ["selects whitespace", [8, 6], [[8, 5], [8, 8]], 3]
       ["selects words", [5, 2], "new", 3]
