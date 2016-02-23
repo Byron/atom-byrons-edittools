@@ -9,6 +9,10 @@ class PlainBlock extends BlockInterface
   LINE_DEPTH = 2
   WORD_DEPTH = 3
   
+  toOffset =
+    next: +1
+    previous: -1
+  
   @newFromBufferPosition = (position) -> new PlainBlock position
   
   positionForRange = (direction, r) ->
@@ -33,6 +37,16 @@ class PlainBlock extends BlockInterface
         new PlainBlock nr.start, LINE_DEPTH, nr
       else
         new PlainBlock np, WORD_DEPTH, nr
+        
+  lineAt = (cr, direction, editor) ->
+    byOffset = new Point(toOffset[direction], 0)
+    nr = cr.translate byOffset
+    
+    if nr.start.row < 0 or not (line = editor.lineTextForBufferRow(nr.end.row))?
+      return null
+    
+    nr.end.column = line.length
+    new PlainBlock nr.start, LINE_DEPTH, nr
 
   # Construct from the cursor point at which we are located
   # $cp ~= cursorPosition
@@ -42,6 +56,7 @@ class PlainBlock extends BlockInterface
     handler =
       switch d = @depth editor
         when WORD_DEPTH then wordAt
+        when LINE_DEPTH then lineAt
         else throw new Error "unknown depth: #{d}"
     
     handler @range(editor), direction, editor
