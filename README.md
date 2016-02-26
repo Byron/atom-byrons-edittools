@@ -7,7 +7,7 @@ The **Byron's EditTools** atom package provides a variety of features designed t
  - Visualize the scope one is in right now. This helps with white-space sensitive languages where it can become difficult to make out the scope you are currently in, e.g. `myFunc() -> for x in y -> if x -> while x-- -> if x % 2`
 * **Toggle Plugins** (*TBD*)
  - Help in pairing situations and allow possibly intrusive plugins to be easily toggled on or off.
- - If [VMP]() is used, it might be difficult for anyone not used to vim to operate Atom, and just deactivating the plugin quickly seems like a nice thing to have.
+ - If [VMP](https://github.com/t9md/atom-vim-mode-plus) is used, it might be difficult for anyone not used to vim to operate Atom, and just deactivating the plugin quickly seems like a nice thing to have.
 
 # Status: Incubation [![Build Status](https://travis-ci.org/Byron/atom-byrons-edittools.svg?branch=master)](https://travis-ci.org/Byron/atom-byrons-edittools)
 
