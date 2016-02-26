@@ -5,12 +5,15 @@ The **Byron's EditTools** atom package provides a variety of features designed t
  - allows to grow and shrink your selection around the cursor(*s*) of your document, moving along its logical hierarchy.
 * **Where Am I ?** (*TBD*)
  - Visualize the scope one is in right now. This helps with white-space sensitive languages where it can become difficult to make out the scope you are currently in, e.g. `myFunc() -> for x in y -> if x -> while x-- -> if x % 2`
+* **Toggle Plugins** (*TBD*)
+ - Help in pairing situations and allow possibly intrusive plugins to be easily toggled on or off.
+ - If [VMP]() is used, it might be difficult for anyone not used to vim to operate Atom, and just deactivating the plugin quickly seems like a nice thing to have.
 
 # Status: Incubation [![Build Status](https://travis-ci.org/Byron/atom-byrons-edittools.svg?branch=master)](https://travis-ci.org/Byron/atom-byrons-edittools)
 
 I just starting looking into solving this problem, there is no functionality just yet.
 
-# Project Goals
+# Project Design Goals
 * **Syntax-Sensitive**
  - It tries to get as close as possible to knowing the AST of the document, see [this post][atom-io-post1] for an idea.
 * **Adaptable to all Languages**
